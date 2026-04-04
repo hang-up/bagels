@@ -1,0 +1,37 @@
+[
+  {
+    "id": "story-noura-friday-kitchen",
+    "profile_id": "profile-noura",
+    "heritage_pack_id": "north-african",
+    "status": "complete",
+    "metadata": {
+      "title": "The Kitchen That Smelled Like Mint Tea",
+      "created_at": "2026-04-04",
+      "created_by": "Sarah Khalid",
+      "speaker": "Noura El Idrissi"
+    },
+    "beats": [
+      {
+        "id": "beat-001",
+        "theme": "relationship",
+        "experience": "memory-cards",
+        "title": "Hands that taught patience",
+        "content": "She said a meal tastes better when you cook for someone specific."
+      },
+      {
+        "id": "beat-002",
+        "theme": "narrative",
+        "experience": "generated-image",
+        "title": "Friday light in the courtyard",
+        "content": "Steam rose from the couscous while sunlight crossed the old tiles."
+      },
+      {
+        "id": "beat-003",
+        "theme": "food",
+        "experience": "recipe-scroll",
+        "title": "Couscous for the whole house",
+        "content": "She layered vegetables by color and never rushed the broth."
+      }
+    ]
+  }
+]

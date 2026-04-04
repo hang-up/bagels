@@ -1,0 +1,16 @@
+[
+  {
+    "id": "profile-noura",
+    "name": "Noura El Idrissi",
+    "relationship_label": "Grandma",
+    "heritage_pack_ids": ["north-african"],
+    "language_tags": ["en", "ar"]
+  },
+  {
+    "id": "profile-lila",
+    "name": "Lila Noor",
+    "relationship_label": "Auntie",
+    "heritage_pack_ids": ["southeast-asian"],
+    "language_tags": ["en", "ms"]
+  }
+]
