@@ -18,7 +18,7 @@
 - [x] 3.2 Build the storybook renderer that reads the static structured story payload and renders beats in order
 - [x] 3.3 Implement the `memory-cards` experience with animated text treatment suitable for readable story moments
 - [ ] 3.4 Implement the `generated-image` experience using heritage pack context plus curated or generated visual assets
-- [ ] 3.5 Implement the `recipe-scroll` experience as an editorial food-memory layout for recipe and ritual content
+- [x] 3.5 Implement the `recipe-scroll` experience as an editorial food-memory layout for recipe and ritual content
 - [ ] 3.6 Layer custom story presentation on top of Clay foundations without breaking overall shell consistency
 
 ## 4. Add Heritage-Aware Presentation

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
+import OriginalLanguageSection from "./components/OriginalLanguageSection.vue";
 import StorybookRenderer from "./components/StorybookRenderer.vue";
 import type {
   FamilyProfile,
@@ -15,12 +16,57 @@ const profiles = ref<FamilyProfile[]>([]);
 const heritagePacks = ref<HeritagePack[]>([]);
 const queue = ref<QueueItem[]>([]);
 const selectedProfileId = ref<string | null>(null);
+const activeProfileDialogId = ref<string | null>(null);
 const statusNote = ref("");
 const story = ref<StoryPayload | null>(null);
 const apiError = ref("");
 const storyLoadError = ref("");
 
 const waveformCache = new Map<string, number[]>();
+const PROFILE_DIALOG_ARTWORK = "/nanay.png";
+const languageLabelByTag: Record<string, string> = {
+  en: "English",
+  ar: "Arabic",
+  ms: "Malay",
+  tl: "Tagalog",
+  ilo: "Ilocano",
+};
+const onboardingDetailByProfileId: Record<
+  string,
+  {
+    hometown: string;
+    born: string;
+    familyRole: string;
+    storyFocus: string;
+    keepsakes: string;
+    firstPrompt: string;
+  }
+> = {
+  "profile-noura": {
+    hometown: "Omdurman, Sudan",
+    born: "1948",
+    familyRole: "Grandmother on mom's side",
+    storyFocus: "Migration memories, Eid traditions, and family recipes",
+    keepsakes: "Jebena coffee pot, prayer beads, handwritten recipe pages",
+    firstPrompt: "Ask about the first home she built after marriage and the meal everyone remembers.",
+  },
+  "profile-lila": {
+    hometown: "George Town, Penang",
+    born: "1963",
+    familyRole: "Aunt and reunion organizer",
+    storyFocus: "Holiday gatherings, neighborhood memories, and playful family stories",
+    keepsakes: "Photo albums, spice tins, reunion invitation cards",
+    firstPrompt: "Start with the celebration she never lets the family miss.",
+  },
+  "profile-nanay": {
+    hometown: "Laoag City, Philippines",
+    born: "1956",
+    familyRole: "Mother and keeper of kitchen traditions",
+    storyFocus: "Comfort meals, caregiving stories, and lessons passed down at home",
+    keepsakes: "Apron pocket notes, rosary, embossed serving platter",
+    firstPrompt: "Open with the dish she made when the whole family needed comfort.",
+  },
+};
 
 const storyRouteId = () => {
   const match = window.location.pathname.match(/^\/story\/([^/]+)$/);
@@ -31,6 +77,10 @@ const routeStoryId = ref<string | null>(storyRouteId());
 
 const selectedProfile = computed(() =>
   profiles.value.find((profile) => profile.id === selectedProfileId.value),
+);
+
+const activeProfileDialog = computed(() =>
+  profiles.value.find((profile) => profile.id === activeProfileDialogId.value),
 );
 
 const queueForProfile = computed(() => {
@@ -52,6 +102,22 @@ const heritageLabel = (id: string) =>
 
 const profileHeritageLabel = (profile: FamilyProfile) =>
   profile.heritage_pack_ids.map((id) => heritageLabel(id)).join(" • ");
+
+const profileLanguageLabel = (profile: FamilyProfile) =>
+  profile.language_tags
+    .map((tag) => languageLabelByTag[tag] ?? tag.toUpperCase())
+    .join(" • ");
+
+const profileOnboardingDetail = (profile: FamilyProfile) =>
+  onboardingDetailByProfileId[profile.id] ?? {
+    hometown: "Unknown hometown",
+    born: "Unknown",
+    familyRole: "Loved one",
+    storyFocus: "Family stories and shared memories",
+    keepsakes: "Photos and keepsakes",
+    firstPrompt:
+      "Use a favorite place, dish, or milestone as the first prompt to help the story start naturally.",
+  };
 
 const badgeClass = (status: QueueStatus) => {
   if (status === "complete") return "badge badge-success";
@@ -143,6 +209,16 @@ const openQueueItem = (item: QueueItem) => {
   statusNote.value = "This voice story is still in queue and is not readable yet.";
 };
 
+const openProfileDialog = (profile: FamilyProfile) => {
+  selectedProfileId.value = profile.id;
+  activeProfileDialogId.value = profile.id;
+  statusNote.value = "";
+};
+
+const closeProfileDialog = () => {
+  activeProfileDialogId.value = null;
+};
+
 const hydrateBaseData = async () => {
   const [profilesPayload, heritagePayload, queuePayload] = await Promise.all([
     fetchJson<FamilyProfile[]>("/family-profiles"),
@@ -187,6 +263,11 @@ onMounted(() => {
     routeStoryId.value = storyRouteId();
     statusNote.value = "";
   });
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && activeProfileDialogId.value) {
+      closeProfileDialog();
+    }
+  });
 });
 
 watch(routeStoryId, () => {
@@ -202,16 +283,31 @@ watch(routeStoryId, () => {
     </section>
 
     <template v-else-if="routeStoryId">
-      <section v-if="story" class="panel story-wrap">
-        <button class="back-btn" type="button" @click="navigateTo('/')">Back Home</button>
-        <h1 class="title">{{ story.metadata.title }}</h1>
-        <p class="muted">
-          {{ profileNameById(story.profile_id) }} • {{ heritageLabel(story.heritage_pack_id) }}
-        </p>
+      <section v-if="story" class="story-wrap">
+        <button class="back-btn story-back-btn" type="button" @click="navigateTo('/')">
+          Back Home
+        </button>
+
+        <header class="story-header">
+          <p class="story-kicker">
+            {{ profileNameById(story.profile_id) }} • {{ heritageLabel(story.heritage_pack_id) }}
+          </p>
+          <h1 class="title story-title">{{ story.metadata.title }}</h1>
+          <p v-if="story.throughline" class="story-deck">{{ story.throughline }}</p>
+          <p class="story-meta">
+            Told by {{ story.metadata.speaker || profileNameById(story.profile_id) }}
+          </p>
+        </header>
+
         <StorybookRenderer :story="story" />
+        <OriginalLanguageSection :story="story" />
+
+        <footer v-if="story.dedication" class="story-footer">
+          <p class="story-dedication">{{ story.dedication }}</p>
+        </footer>
       </section>
 
-      <section v-else class="panel story-wrap">
+      <section v-else class="panel story-fallback">
         <button class="back-btn" type="button" @click="navigateTo('/')">Back Home</button>
         <h1 class="title">Story Unavailable</h1>
         <p class="muted">{{ storyLoadError || "Loading story..." }}</p>
@@ -236,10 +332,7 @@ watch(routeStoryId, () => {
             type="button"
             class="profile-btn"
             :class="{ active: selectedProfileId === profile.id }"
-            @click="
-              selectedProfileId = selectedProfileId === profile.id ? null : profile.id;
-              statusNote = '';
-            "
+            @click="openProfileDialog(profile)"
           >
             <div class="avatar" aria-hidden="true">{{ profile.name.slice(0, 1) }}</div>
             <div>
@@ -293,6 +386,94 @@ watch(routeStoryId, () => {
 
         <p class="status-note" v-if="statusNote">{{ statusNote }}</p>
       </section>
+
+      <div
+        v-if="activeProfileDialog"
+        class="profile-dialog-backdrop"
+        role="presentation"
+        @click="closeProfileDialog"
+      >
+        <section
+          class="profile-dialog"
+          role="dialog"
+          aria-modal="true"
+          :aria-labelledby="`profile-dialog-title-${activeProfileDialog.id}`"
+          @click.stop
+        >
+          <button
+            class="profile-dialog-close"
+            type="button"
+            aria-label="Close profile details"
+            @click="closeProfileDialog"
+          >
+            Close
+          </button>
+
+          <div class="profile-dialog-media">
+            <img
+              :src="PROFILE_DIALOG_ARTWORK"
+              :alt="`${activeProfileDialog.name} profile illustration`"
+            />
+          </div>
+
+          <div class="profile-dialog-body">
+            <p class="profile-dialog-kicker">Onboarding Preview</p>
+            <h3
+              :id="`profile-dialog-title-${activeProfileDialog.id}`"
+              class="profile-dialog-title"
+            >
+              {{ activeProfileDialog.name }}
+            </h3>
+            <p class="profile-dialog-subtitle">
+              {{ activeProfileDialog.relationship_label }} •
+              {{ profileHeritageLabel(activeProfileDialog) }}
+            </p>
+
+            <div class="profile-dialog-grid">
+              <article class="profile-detail-card">
+                <span class="profile-detail-label">Born</span>
+                <p>{{ profileOnboardingDetail(activeProfileDialog).born }}</p>
+              </article>
+
+              <article class="profile-detail-card">
+                <span class="profile-detail-label">Hometown</span>
+                <p>{{ profileOnboardingDetail(activeProfileDialog).hometown }}</p>
+              </article>
+
+              <article class="profile-detail-card">
+                <span class="profile-detail-label">Languages</span>
+                <p>{{ profileLanguageLabel(activeProfileDialog) }}</p>
+              </article>
+
+              <article class="profile-detail-card">
+                <span class="profile-detail-label">Family Role</span>
+                <p>{{ profileOnboardingDetail(activeProfileDialog).familyRole }}</p>
+              </article>
+
+              <article class="profile-detail-card profile-detail-card-wide">
+                <span class="profile-detail-label">Story Focus</span>
+                <p>{{ profileOnboardingDetail(activeProfileDialog).storyFocus }}</p>
+              </article>
+
+              <article class="profile-detail-card profile-detail-card-wide">
+                <span class="profile-detail-label">Keepsakes to Ask About</span>
+                <p>{{ profileOnboardingDetail(activeProfileDialog).keepsakes }}</p>
+              </article>
+
+              <article class="profile-detail-card profile-detail-card-wide">
+                <span class="profile-detail-label">First Prompt</span>
+                <p>{{ profileOnboardingDetail(activeProfileDialog).firstPrompt }}</p>
+              </article>
+            </div>
+
+            <div class="profile-dialog-actions">
+              <button class="profile-dialog-primary" type="button" @click="closeProfileDialog">
+                Continue to stories
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
     </template>
   </main>
 </template>

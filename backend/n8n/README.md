@@ -11,8 +11,8 @@
 2. Loads profile + heritage context from API.
 3. Marks queue item as `processing` (best-effort).
 4. Downloads audio and transcribes via OpenAI.
-5. Extracts grounded facts from transcript via OpenAI.
-6. Generates a structured story payload (`metadata + beats`) via OpenAI.
+5. Extracts grounded facts from transcript via an n8n **AI Agent** node + OpenAI Chat Model.
+6. Generates a structured story payload (`metadata + beats`) via an n8n **AI Agent** node + OpenAI Chat Model.
 7. Validates shape against expected contract.
 8. On success:
 - Attempts to persist story to `POST /api/stories`.
@@ -40,6 +40,7 @@ The workflow can persist generated stories and update queue states end-to-end.
 
 1. In n8n, import `backend/n8n/workflows/hana-voice-to-story.json`.
 2. Set environment variables above.
-3. Activate workflow.
-4. `POST` sample payload from `backend/n8n/samples/story-submitted.payload.json` to:
+3. In the workflow, open `Facts Model (OpenAI Chat)` and `Story Model (OpenAI Chat)` and select your OpenAI credential.
+4. Activate workflow.
+5. `POST` sample payload from `backend/n8n/samples/story-submitted.payload.json` to:
 - `http://localhost:5678/webhook/hana/voice-to-story`

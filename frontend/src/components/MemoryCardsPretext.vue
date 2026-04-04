@@ -16,6 +16,7 @@ interface Particle {
   sceneY: number;
   sceneAlpha: number;
   fromOriginal: boolean;
+  depth: number;
 }
 
 const containerRef = ref<HTMLElement | null>(null);
@@ -33,15 +34,26 @@ let readH = 0;
 let sceneH = 0;
 let initialized = false;
 
-const READ_SIZE = 14;
-const SCENE_SIZE = 6;
-const READ_LINE_HEIGHT = 21;
+let isGif = false;
+let gifFrameAlphas: number[][] = [];
+let gifFrameOffsets: { dx: number; dy: number }[][] = [];
+let gifFrameDelays: number[] = [];
+let currentFrame = 0;
+let frameElapsed = 0;
+
+const MAX_GIF_FRAMES = 24;
+const MAX_PARTICLES = 8000;
+const READ_SIZE = 18.56;
+const SCENE_SIZE = 8;
+const READ_LINE_HEIGHT = 28;
 const FONT_FAMILY = 'Georgia, "Times New Roman", serif';
 const readFont = `${READ_SIZE}px ${FONT_FAMILY}`;
-const SCENE_CELL_W = 5;
-const SCENE_CELL_H = 8;
+const SCENE_CELL_W = 7;
+const SCENE_CELL_H = 11;
+const GIF_CELL_W = 11;
+const GIF_CELL_H = 16;
 const SPEED = 0.005;
-const PAD = 16;
+const PAD = 20;
 
 function ease(t: number) {
   return t < 0.5 ? 8 * t * t * t * t : 1 - (-2 * t + 2) ** 4 / 2;
@@ -83,7 +95,11 @@ function sampleDarkCells(img: HTMLImageElement, w: number, h: number) {
         (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114) / 255;
       const d = 1 - lum;
       if (d > 0.2) {
-        cells.push({ x: c * SCENE_CELL_W, y: r * SCENE_CELL_H + SCENE_SIZE, d });
+        cells.push({
+          x: c * SCENE_CELL_W,
+          y: r * SCENE_CELL_H + SCENE_SIZE,
+          d,
+        });
       }
     }
   }
@@ -109,34 +125,13 @@ function computeReadPositions(content: string, width: number) {
   return out;
 }
 
-async function init() {
-  const container = containerRef.value;
-  const canvas = canvasRef.value;
-  if (!canvas || !container) return;
-
-  const dpr = window.devicePixelRatio || 1;
-  cW = container.clientWidth - 26;
-
-  const content = props.beat.content;
-  const readPos = computeReadPositions(content, cW);
-
-  readH =
-    readPos.length > 0
-      ? Math.max(...readPos.map((p) => p.y)) + PAD
-      : 200;
-  sceneH = Math.round(cW * 1.4);
-
-  canvas.width = cW * dpr;
-  canvas.height = sceneH * dpr;
-  canvas.style.width = `${cW}px`;
-  canvas.style.height = `${sceneH}px`;
-
-  stageHeight.value = readH;
-
-  const img = await loadImg(props.sceneImage);
-  const cells = sampleDarkCells(img, cW, sceneH);
+function buildParticles(
+  cells: { x: number; y: number; d: number }[],
+  readPos: { char: string; x: number; y: number }[],
+  content: string,
+  rand: () => number,
+) {
   const chars = content.replace(/\s+/g, "").split("");
-  const rand = seededRng(7);
 
   for (let i = cells.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
@@ -144,7 +139,12 @@ async function init() {
   }
   cells.sort((a, b) => b.d - a.d);
 
-  const readMaxY = readPos.length > 0 ? Math.max(...readPos.map((p) => p.y)) : readH;
+  if (cells.length > MAX_PARTICLES) {
+    cells.length = MAX_PARTICLES;
+  }
+
+  const readMaxY =
+    readPos.length > 0 ? Math.max(...readPos.map((p) => p.y)) : readH;
 
   particles = cells.map((cell, i) => {
     const ci = i % chars.length;
@@ -158,12 +158,204 @@ async function init() {
       sceneY: cell.y,
       sceneAlpha: Math.min(1, cell.d * 1.3),
       fromOriginal: isOrig,
+      depth: cell.y / sceneH,
     };
   });
+}
+
+// --------------- GIF helpers ---------------
+
+function buildGifFullFrames(
+  frames: import("gifuct-js").GifFrame[],
+  gifW: number,
+  gifH: number,
+  targetCols: number,
+  targetRows: number,
+) {
+  const comp = document.createElement("canvas");
+  comp.width = gifW;
+  comp.height = gifH;
+  const compCtx = comp.getContext("2d")!;
+  compCtx.fillStyle = "#ffffff";
+  compCtx.fillRect(0, 0, gifW, gifH);
+
+  const scaled = document.createElement("canvas");
+  scaled.width = targetCols;
+  scaled.height = targetRows;
+  const scaledCtx = scaled.getContext("2d", { willReadFrequently: true })!;
+
+  const results: ImageData[] = [];
+
+  for (const frame of frames) {
+    const { dims, patch, disposalType } = frame;
+    const tmp = document.createElement("canvas");
+    tmp.width = dims.width;
+    tmp.height = dims.height;
+    const tmpCtx = tmp.getContext("2d")!;
+    tmpCtx.putImageData(
+      new ImageData(
+        Uint8ClampedArray.from(patch),
+        dims.width,
+        dims.height,
+      ),
+      0,
+      0,
+    );
+    compCtx.drawImage(tmp, dims.left, dims.top);
+
+    scaledCtx.clearRect(0, 0, targetCols, targetRows);
+    scaledCtx.drawImage(comp, 0, 0, targetCols, targetRows);
+    results.push(scaledCtx.getImageData(0, 0, targetCols, targetRows));
+
+    if (disposalType === 2) {
+      compCtx.clearRect(dims.left, dims.top, dims.width, dims.height);
+    }
+  }
+
+  return results;
+}
+
+async function initGif(
+  readPos: { char: string; x: number; y: number }[],
+  content: string,
+  rand: () => number,
+) {
+  const { parseGIF, decompressFrames } = await import("gifuct-js");
+  const resp = await fetch(props.sceneImage);
+  const buffer = await resp.arrayBuffer();
+  const gif = parseGIF(buffer);
+  let frames = decompressFrames(gif, true);
+
+  if (frames.length > MAX_GIF_FRAMES) {
+    const step = frames.length / MAX_GIF_FRAMES;
+    const picked: typeof frames = [];
+    for (let i = 0; i < MAX_GIF_FRAMES; i++)
+      picked.push(frames[Math.floor(i * step)]);
+    frames = picked;
+  }
+
+  const cols = Math.floor(cW / GIF_CELL_W);
+  const rows = Math.floor(sceneH / GIF_CELL_H);
+  const fullFrames = buildGifFullFrames(
+    frames,
+    gif.lsd.width,
+    gif.lsd.height,
+    cols,
+    rows,
+  );
+
+  gifFrameDelays = frames.map((f) => Math.max(f.delay || 10, 2) * 10);
+
+  // Union darkness across all frames to decide which cells get particles
+  const maxD = new Float32Array(cols * rows);
+  for (const fd of fullFrames) {
+    const { data } = fd;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const i = (r * cols + c) * 4;
+        const lum =
+          (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114) / 255;
+        const d = 1 - lum;
+        const idx = r * cols + c;
+        if (d > maxD[idx]) maxD[idx] = d;
+      }
+    }
+  }
+
+  const cellMeta: { x: number; y: number; d: number; col: number; row: number }[] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const d = maxD[r * cols + c];
+      if (d > 0.2) {
+        cellMeta.push({
+          x: c * GIF_CELL_W,
+          y: r * GIF_CELL_H + SCENE_SIZE,
+          d,
+          col: c,
+          row: r,
+        });
+      }
+    }
+  }
+
+  buildParticles(cellMeta, readPos, content, rand);
+
+  const OFFSET_SCALE = 10.0;
+
+  const getDarkness = (data: Uint8ClampedArray, c: number, r: number) => {
+    if (c < 0 || c >= cols || r < 0 || r >= rows) return 0;
+    const i = (r * cols + c) * 4;
+    const lum =
+      (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114) / 255;
+    return 1 - lum;
+  };
+
+  gifFrameAlphas = fullFrames.map((fd) => {
+    const { data } = fd;
+    return cellMeta.map(({ col, row }) => {
+      const i = (row * cols + col) * 4;
+      const lum =
+        (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114) / 255;
+      return Math.min(1, (1 - lum) * 1.3);
+    });
+  });
+
+  gifFrameOffsets = fullFrames.map((fd) => {
+    const { data } = fd;
+    return cellMeta.map(({ col, row }) => {
+      const dx =
+        (getDarkness(data, col + 1, row) - getDarkness(data, col - 1, row)) *
+        OFFSET_SCALE;
+      const dy =
+        (getDarkness(data, col, row + 1) - getDarkness(data, col, row - 1)) *
+        OFFSET_SCALE;
+      return { dx, dy };
+    });
+  });
+
+  isGif = true;
+  currentFrame = 0;
+  frameElapsed = 0;
+}
+
+// --------------- init ---------------
+
+async function init() {
+  const container = containerRef.value;
+  const canvas = canvasRef.value;
+  if (!canvas || !container) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  cW = container.clientWidth - 26;
+
+  const content = props.beat.content;
+  const readPos = computeReadPositions(content, cW);
+
+  readH =
+    readPos.length > 0 ? Math.max(...readPos.map((p) => p.y)) + PAD : 200;
+  sceneH = Math.round(cW * 1.4);
+
+  canvas.width = cW * dpr;
+  canvas.height = sceneH * dpr;
+  canvas.style.width = `${cW}px`;
+  canvas.style.height = `${sceneH}px`;
+  stageHeight.value = readH;
+
+  const rand = seededRng(7);
+
+  if (props.sceneImage.toLowerCase().endsWith(".gif")) {
+    await initGif(readPos, content, rand);
+  } else {
+    const img = await loadImg(props.sceneImage);
+    const cells = sampleDarkCells(img, cW, sceneH);
+    buildParticles(cells, readPos, content, rand);
+  }
 
   initialized = true;
   render();
 }
+
+// --------------- render ---------------
 
 function render() {
   const canvas = canvasRef.value;
@@ -172,9 +364,7 @@ function render() {
   const dpr = window.devicePixelRatio || 1;
 
   const t = ease(progress);
-
   stageHeight.value = readH + (sceneH - readH) * t;
-
   const fontSize = READ_SIZE + (SCENE_SIZE - READ_SIZE) * t;
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -182,8 +372,17 @@ function render() {
   ctx.font = `${fontSize}px ${FONT_FAMILY}`;
   ctx.textBaseline = "alphabetic";
 
-  for (const p of particles) {
-    const x = p.readX + (p.sceneX - p.readX) * t;
+  let gifT = 0;
+  let nextFrame = 0;
+  if (isGif && gifFrameAlphas.length > 1) {
+    nextFrame = (currentFrame + 1) % gifFrameAlphas.length;
+    const delay = gifFrameDelays[currentFrame] || 100;
+    gifT = Math.min(1, frameElapsed / delay);
+  }
+
+  for (let pi = 0; pi < particles.length; pi++) {
+    const p = particles[pi];
+    let x = p.readX + (p.sceneX - p.readX) * t;
     let y = p.readY + (p.sceneY - p.readY) * t;
 
     let a: number;
@@ -193,12 +392,37 @@ function render() {
       a = p.sceneAlpha * Math.min(1, t * 2.5);
     }
 
+    if (isGif && t > 0.8 && gifFrameAlphas.length > 1) {
+      const blend = Math.min(1, (t - 0.8) / 0.2);
+      const frameA =
+        gifFrameAlphas[currentFrame][pi] +
+        (gifFrameAlphas[nextFrame][pi] - gifFrameAlphas[currentFrame][pi]) *
+          gifT;
+      a = a * (1 - blend) + frameA * blend;
+
+      if (gifFrameOffsets.length > 0) {
+        const off = gifFrameOffsets[currentFrame][pi];
+        const offN = gifFrameOffsets[nextFrame][pi];
+        x += (off.dx + (offN.dx - off.dx) * gifT) * blend;
+        y += (off.dy + (offN.dy - off.dy) * gifT) * blend;
+      }
+    }
+
+    // Depth-aware parallax drift
     if (t > 0.85) {
-      const d = (t - 0.85) / 0.15;
+      const fade = (t - 0.85) / 0.15;
+      const d = p.depth;
+
+      const hSpeed = 0.2 + d * 0.6;
+      const hAmp = 0.3 + d * 1.2;
+      x +=
+        Math.sin(driftT * hSpeed + p.sceneX * 0.02 + p.sceneY * 0.01) *
+        hAmp *
+        fade;
+
+      const vAmp = d * 0.8;
       y +=
-        Math.sin(driftT * 0.5 + p.sceneX * 0.025 + p.sceneY * 0.018) *
-        1.0 *
-        d;
+        Math.cos(driftT * (0.3 + d * 0.4) + p.sceneX * 0.015) * vAmp * fade;
     }
 
     ctx.globalAlpha = a;
@@ -207,6 +431,8 @@ function render() {
   }
 }
 
+// --------------- tick ---------------
+
 function tick() {
   if (targetProgress > progress) {
     progress = Math.min(targetProgress, progress + SPEED);
@@ -214,6 +440,15 @@ function tick() {
     progress = Math.max(targetProgress, progress - SPEED);
   }
   driftT += 0.016;
+
+  if (isGif && progress >= 0.8 && gifFrameDelays.length > 0) {
+    frameElapsed += 16;
+    if (frameElapsed >= gifFrameDelays[currentFrame]) {
+      frameElapsed = 0;
+      currentFrame = (currentFrame + 1) % gifFrameAlphas.length;
+    }
+  }
+
   render();
 
   if (Math.abs(progress - targetProgress) < 0.0005) {
@@ -237,6 +472,8 @@ function toggle() {
     if (!rafId) rafId = requestAnimationFrame(tick);
   } else {
     targetProgress = 0;
+    currentFrame = 0;
+    frameElapsed = 0;
     if (!rafId) rafId = requestAnimationFrame(tick);
   }
 }
@@ -252,16 +489,24 @@ onUnmounted(() => {
 
 <template>
   <article ref="containerRef" class="beat beat-memory-card">
-    <span class="chip">memory-cards</span>
-    <h3>{{ beat.title }}</h3>
+    <header class="story-section-head story-section-head-dark">
+      <h3 class="story-section-title">{{ beat.title }}</h3>
+      <p v-if="beat.ambient_detail" class="story-section-subtitle">
+        {{ beat.ambient_detail }}
+      </p>
+    </header>
 
-    <div class="memory-stage" :style="{ height: stageHeight + 'px' }">
-      <canvas ref="canvasRef" class="memory-canvas" />
+    <div class="memory-stage-wrap">
+      <div class="memory-stage" :style="{ height: stageHeight + 'px' }">
+        <canvas ref="canvasRef" class="memory-canvas" />
+      </div>
     </div>
 
-    <button class="animate-btn" type="button" @click="toggle">
-      {{ isScene ? "Read" : "Animate" }}
-    </button>
+    <div class="memory-controls">
+      <button class="animate-btn" type="button" @click="toggle">
+        {{ isScene ? "Read" : "Animate" }}
+      </button>
+    </div>
   </article>
 </template>
 
@@ -269,31 +514,46 @@ onUnmounted(() => {
 .memory-stage {
   overflow: hidden;
   margin-top: 8px;
-  border-radius: 4px;
+  border: 1px solid rgb(41 57 77 / 0.6);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top, rgb(54 84 124 / 0.18), transparent 42%),
+    linear-gradient(180deg, rgb(6 12 22), rgb(9 18 31));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 20px 44px rgb(6 13 25 / 0.16);
 }
 
 .memory-canvas {
   display: block;
+  width: 100%;
 }
 
 .animate-btn {
-  display: block;
-  margin: 14px auto 0;
-  padding: 6px 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 14px 0 0;
+  min-height: 38px;
+  padding: 0 18px;
   border: 1px solid #2a3f56;
-  border-radius: 6px;
-  background: transparent;
-  color: #b0c8e0;
-  font-size: 0.88rem;
-  font-weight: 500;
+  border-radius: 999px;
+  background: rgb(8 16 28 / 0.8);
+  color: #d5e3f2;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     background 140ms,
-    border-color 140ms;
+    border-color 140ms,
+    color 140ms;
 }
 
 .animate-btn:hover {
-  background: rgba(110, 160, 220, 0.1);
-  border-color: #4a6a8a;
+  background: rgb(18 34 57 / 0.92);
+  border-color: #5f81a7;
+  color: #f3f8fc;
 }
 </style>

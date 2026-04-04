@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700;6..96,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,700;8..60,800&display=swap");
 
 :root {
   --background: 0 0% 100%;
@@ -65,16 +65,16 @@ body {
 .title {
   margin: 4px 0 0;
   font-family:
-    "Bodoni Moda",
-    "Didot",
-    "Bodoni 72",
-    "Bodoni MT",
+    "Source Serif 4",
+    "Iowan Old Style",
+    "Palatino Linotype",
+    "Book Antiqua",
     "Times New Roman",
     serif;
   font-size: clamp(3.2rem, 9vw, 6.2rem);
-  font-weight: 900;
-  line-height: 0.9;
-  letter-spacing: -0.045em;
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
   text-shadow: 0 1px 0 hsl(var(--foreground) / 0.12);
 }
 
@@ -182,6 +182,163 @@ body {
   font-size: 0.85rem;
 }
 
+.profile-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background:
+    linear-gradient(180deg, rgb(11 18 28 / 0.36), rgb(11 18 28 / 0.54)),
+    radial-gradient(circle at top, rgb(248 240 232 / 0.2), transparent 38%);
+  backdrop-filter: blur(10px);
+}
+
+.profile-dialog {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(240px, 0.9fr) minmax(320px, 1.15fr);
+  width: min(920px, 100%);
+  max-height: min(88vh, 920px);
+  overflow: auto;
+  border: 1px solid rgb(119 126 138 / 0.18);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgb(252 253 255 / 0.98), rgb(241 244 248 / 0.98));
+  box-shadow:
+    0 32px 80px rgb(10 15 24 / 0.26),
+    inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+
+.profile-dialog-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 1;
+  border: 1px solid rgb(116 124 137 / 0.18);
+  border-radius: 999px;
+  padding: 0 12px;
+  height: 34px;
+  background: rgb(255 255 255 / 0.88);
+  color: rgb(55 65 81 / 0.88);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-dialog-close:hover {
+  background: rgb(255 255 255 / 0.98);
+}
+
+.profile-dialog-media {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top, rgb(255 255 255 / 0.7), transparent 45%),
+    linear-gradient(180deg, rgb(242 245 249), rgb(229 234 241));
+}
+
+.profile-dialog-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  object-fit: cover;
+}
+
+.profile-dialog-body {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 34px 30px 30px;
+}
+
+.profile-dialog-kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(92 108 129 / 0.85);
+}
+
+.profile-dialog-title {
+  margin: 0;
+  font-family:
+    "Source Serif 4",
+    "Iowan Old Style",
+    "Times New Roman",
+    serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  color: rgb(24 30 39 / 0.98);
+}
+
+.profile-dialog-subtitle {
+  margin: -10px 0 0;
+  color: rgb(93 103 117 / 0.92);
+  font-size: 0.96rem;
+}
+
+.profile-dialog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.profile-detail-card {
+  display: grid;
+  gap: 8px;
+  min-height: 120px;
+  padding: 16px;
+  border: 1px solid rgb(123 134 149 / 0.14);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(242 246 250 / 0.98));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.68);
+}
+
+.profile-detail-card p {
+  margin: 0;
+  color: rgb(72 82 95 / 0.92);
+  line-height: 1.55;
+}
+
+.profile-detail-card-wide {
+  grid-column: 1 / -1;
+}
+
+.profile-detail-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(98 111 128 / 0.78);
+}
+
+.profile-dialog-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.profile-dialog-primary {
+  border: 0;
+  border-radius: 999px;
+  height: 44px;
+  padding: 0 18px;
+  background: rgb(35 48 68 / 0.96);
+  color: rgb(248 250 252);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgb(35 48 68 / 0.18);
+}
+
+.profile-dialog-primary:hover {
+  background: rgb(27 38 56 / 0.98);
+}
+
 .queue-list {
   display: grid;
   gap: 10px;
@@ -287,7 +444,12 @@ body {
 }
 
 .story-wrap {
-  padding: 24px;
+  padding: 10px 0 48px;
+}
+
+.story-fallback {
+  max-width: 42rem;
+  margin: 0 auto;
 }
 
 .badge {
@@ -314,47 +476,517 @@ body {
   background: hsl(var(--muted));
 }
 
+.storybook-renderer {
+  display: grid;
+  gap: clamp(2.8rem, 8vw, 5rem);
+}
+
 .beat {
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  background: hsl(var(--card));
-  padding: 12px;
-  margin-top: 10px;
-}
-
-.beat h3 {
-  margin: 0 0 6px;
-}
-
-.beat p {
   margin: 0;
 }
 
 .chip {
   display: inline-block;
-  margin-bottom: 7px;
-  border-radius: 999px;
-  padding: 2px 9px;
-  font-size: 0.77rem;
-  color: hsl(var(--muted-foreground));
-  background: hsl(var(--muted));
+  margin-bottom: 0.9rem;
+  padding: 0;
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(108 103 95 / 0.82);
 }
 
-.beat-memory-card {
+.story-back-btn {
+  margin-bottom: clamp(1.8rem, 4vw, 2.5rem);
+}
+
+.story-header,
+.story-footer {
+  width: min(42rem, 100%);
+  margin: 0 auto;
+}
+
+.story-header {
+  margin-bottom: clamp(2.2rem, 6vw, 3.8rem);
+}
+
+.story-kicker,
+.story-meta,
+.story-dedication {
+  margin: 0;
+}
+
+.story-kicker {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(117 109 99 / 0.86);
+}
+
+.story-title {
+  margin-top: 0.7rem;
+  font-size: clamp(3.2rem, 8vw, 6rem);
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.story-deck {
+  width: min(38rem, 100%);
+  margin: 1.25rem 0 0;
+  font-family:
+    "Source Serif 4",
+    "Iowan Old Style",
+    "Palatino Linotype",
+    "Book Antiqua",
+    "Times New Roman",
+    serif;
+  font-size: clamp(1.18rem, 2vw, 1.45rem);
+  line-height: 1.5;
+  color: rgb(63 60 56 / 0.9);
+}
+
+.story-meta {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: rgb(94 92 88 / 0.8);
+}
+
+.story-footer {
+  margin-top: clamp(3rem, 8vw, 5rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid rgb(117 109 99 / 0.18);
+}
+
+.story-dedication {
+  font-family:
+    "Source Serif 4",
+    "Iowan Old Style",
+    "Palatino Linotype",
+    "Book Antiqua",
+    "Times New Roman",
+    serif;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: rgb(82 78 72 / 0.84);
+}
+
+.original-language-section {
+  width: min(42rem, 100%);
+  margin: clamp(3rem, 8vw, 5rem) auto 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgb(117 109 99 / 0.18);
+}
+
+.original-language-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  list-style: none;
+  cursor: pointer;
+}
+
+.original-language-summary::-webkit-details-marker {
+  display: none;
+}
+
+.original-language-summary-copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.original-language-summary-title {
+  font-family:
+    "Source Serif 4",
+    "Iowan Old Style",
+    "Palatino Linotype",
+    "Book Antiqua",
+    "Times New Roman",
+    serif;
+  font-size: clamp(1.5rem, 3vw, 2.15rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: rgb(43 40 36 / 0.94);
+}
+
+.original-language-summary-icon {
+  flex: 0 0 auto;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-right: 1.5px solid rgb(107 100 91 / 0.7);
+  border-bottom: 1.5px solid rgb(107 100 91 / 0.7);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 140ms ease;
+}
+
+.original-language-section[open] .original-language-summary-icon {
+  transform: rotate(225deg) translateY(-1px);
+}
+
+.original-language-list {
+  display: grid;
+  gap: 1.6rem;
+  margin-top: 1.4rem;
+}
+
+.original-language-summary:hover .original-language-summary-title {
+  color: rgb(28 26 24 / 0.98);
+}
+
+.original-language-entry {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.original-language-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: rgb(54 50 45 / 0.92);
+}
+
+.original-language-copy p {
+  margin: 0 0 0.9rem;
+  font-family:
+    "Iowan Old Style",
+    "Palatino Linotype",
+    "Book Antiqua",
+    "Times New Roman",
+    serif;
+  font-size: 0.98rem;
+  line-height: 1.75;
+  color: rgb(58 54 50 / 0.9);
+}
+
+.original-language-copy p:last-child {
+  margin-bottom: 0;
+}
+
+.story-section-head,
+.editorial-copy,
+.photo-caption {
+  width: min(42rem, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.story-section-head {
+  margin-bottom: 1rem;
+}
+
+.story-section-title {
+  margin: 0;
+  font-family:
+    "Source Serif 4",
+    "Iowan Old Style",
+    "Palatino Linotype",
+    "Book Antiqua",
+    "Times New Roman",
+    serif;
+  font-size: clamp(1.95rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.story-section-subtitle {
+  width: min(34rem, 100%);
+  margin: 0.7rem 0 0;
+  color: rgb(97 92 84 / 0.84);
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+.editorial-copy p {
+  margin: 0 0 1.1rem;
+  font-family:
+    "Iowan Old Style",
+    "Palatino Linotype",
+    "Book Antiqua",
+    "Times New Roman",
+    serif;
+  font-size: clamp(1.06rem, 1.6vw, 1.16rem);
+  line-height: 1.9;
+  color: rgb(30 29 28 / 0.95);
+}
+
+.editorial-copy p:last-child {
+  margin-bottom: 0;
+}
+
+.beat-editorial .editorial-copy p:first-of-type::first-letter,
+.editorial-copy-photo p:first-of-type::first-letter {
+  float: left;
+  margin: 0.14rem 0.45rem 0 0;
+  font-family:
+    "Source Serif 4",
+    "Iowan Old Style",
+    serif;
+  font-size: 3.4rem;
+  line-height: 0.78;
+  font-weight: 700;
+  color: rgb(96 87 75 / 0.86);
+}
+
+.beat-recipe-scroll {
+  position: relative;
+}
+
+.recipe-head {
+  margin-bottom: 0.9rem;
+}
+
+.recipe-subtitle {
+  width: min(34rem, 100%);
+}
+
+.recipe-story {
+  position: relative;
+}
+
+.recipe-story p {
+  color: rgb(35 38 42 / 0.96);
+}
+
+.recipe-story p:first-of-type::first-letter {
+  float: left;
+  margin: 0.14rem 0.45rem 0 0;
+  font-family:
+    "Source Serif 4",
+    "Iowan Old Style",
+    serif;
+  font-size: 3.2rem;
+  line-height: 0.78;
+  font-weight: 700;
+  color: rgb(93 87 77 / 0.88);
+}
+
+.recipe-kicker {
+  display: inline-block;
+  margin-bottom: 9px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgb(107 114 122 / 0.78);
+}
+
+.dish-hover {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.dish-trigger {
+  display: inline;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: rgb(40 63 98 / 0.96);
+  background: transparent;
+  border-bottom: 1px solid rgb(86 116 161 / 0.42);
+  box-shadow: inset 0 -0.2em 0 rgb(108 144 201 / 0.12);
+  cursor: pointer;
+  transition:
+    color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.dish-trigger:hover,
+.dish-trigger:focus-visible {
+  color: rgb(29 54 95 / 0.98);
+  border-color: rgb(72 102 151 / 0.65);
+  box-shadow: inset 0 -0.28em 0 rgb(108 144 201 / 0.18);
+  outline: none;
+}
+
+.dish-card {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: max(-1rem, -10vw);
+  z-index: 4;
+  display: grid;
+  grid-template-columns: minmax(150px, 0.9fr) minmax(220px, 1.1fr);
+  width: min(34rem, 82vw);
+  gap: 0;
+  padding: 0;
+  border: 1px solid rgb(124 132 145 / 0.22);
+  border-radius: 20px;
   overflow: hidden;
-  padding: 12px 12px 14px;
-  background: #050a12;
-  color: #f4efe6;
-  border-color: #1b2c3f;
+  background: rgb(249 250 252 / 0.98);
+  box-shadow:
+    0 20px 40px rgb(19 28 44 / 0.16),
+    0 4px 12px rgb(19 28 44 / 0.08);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px) scale(0.985);
+  transform-origin: top left;
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 180ms ease;
 }
 
-.beat-memory-card h3 {
-  color: #f3ede4;
+.dish-hover:hover .dish-card,
+.dish-hover:focus-within .dish-card {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
 }
 
-.beat-memory-card .chip {
-  background: rgb(223 180 141 / 20%);
-  color: #f0d3b9;
+.dish-card-media {
+  display: block;
+  min-height: 100%;
+  background:
+    linear-gradient(140deg, rgb(245 246 247), rgb(230 232 235));
+}
+
+.dish-card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.dish-card-body {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 16px 16px 18px;
+  background:
+    linear-gradient(180deg, rgb(248 249 250 / 0.94), rgb(236 238 241 / 0.96));
+}
+
+.dish-card-title {
+  display: block;
+  margin-top: -2px;
+  font-family:
+    "Source Serif 4",
+    "Iowan Old Style",
+    "Times New Roman",
+    serif;
+  font-size: 1.45rem;
+  line-height: 1.05;
+  color: rgb(27 31 37 / 0.96);
+}
+
+.dish-card-copy {
+  display: block;
+  margin: 0;
+  color: rgb(70 76 84 / 0.92);
+  line-height: 1.55;
+}
+
+.dish-card-copy-muted {
+  color: rgb(95 101 109 / 0.86);
+}
+
+.recipe-visual-prompt {
+  margin: 0;
+  padding: 18px;
+  color: rgb(101 108 116 / 0.82);
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.dish-card-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.dish-card-section {
+  display: grid;
+  gap: 7px;
+}
+
+.dish-card-label {
+  display: block;
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgb(104 111 119 / 0.76);
+}
+
+.dish-card-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.dish-card-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 0 10px;
+  background: rgb(255 255 255 / 0.84);
+  color: rgb(74 80 88 / 0.92);
+  box-shadow: inset 0 0 0 1px rgb(126 132 140 / 0.15);
+  font-size: 0.84rem;
+  line-height: 1.2;
+}
+
+.dish-card-steps {
+  display: grid;
+  gap: 8px;
+}
+
+.dish-card-step {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 9px;
+  align-items: start;
+  color: rgb(45 49 54 / 0.94);
+  line-height: 1.45;
+}
+
+.dish-card-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgb(103 110 119 / 0.09);
+  color: rgb(95 101 109 / 0.8);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.beat-photo-moment {
+  display: grid;
+  gap: 1rem;
+}
+
+.photo-bleed {
+  width: 100vw;
+  margin: 0 calc(50% - 50vw);
+}
+
+.photo-bleed img {
+  display: block;
+  width: 100%;
+  height: min(78vh, 52rem);
+  object-fit: cover;
+  background: rgb(15 18 24);
+}
+
+.photo-caption {
+  margin-top: -0.1rem;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: rgb(103 98 91 / 0.8);
 }
 
 
@@ -376,11 +1008,64 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .profile-dialog {
+    grid-template-columns: 1fr;
+    width: min(34rem, 100%);
+  }
+
+  .profile-dialog-media img {
+    aspect-ratio: 4 / 3;
+    min-height: 0;
+  }
+
+  .profile-dialog-body {
+    padding: 22px 18px 20px;
+  }
+
+  .profile-dialog-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dish-card {
+    left: 0;
+    grid-template-columns: 1fr;
+    width: min(21rem, calc(100vw - 3rem));
+  }
+
+  .dish-card-media img {
+    aspect-ratio: 16 / 10;
+  }
+
   .waveform {
     height: 56px;
   }
 
   .home-section {
     padding: 14px 12px 16px;
+  }
+
+  .story-wrap {
+    padding-bottom: 36px;
+  }
+
+  .story-title {
+    font-size: clamp(2.7rem, 14vw, 4.3rem);
+  }
+
+  .story-deck {
+    font-size: 1.05rem;
+  }
+
+  .story-section-title {
+    font-size: clamp(1.7rem, 9vw, 2.4rem);
+  }
+
+  .editorial-copy p {
+    font-size: 1rem;
+    line-height: 1.82;
+  }
+
+  .photo-bleed img {
+    height: min(58vh, 28rem);
   }
 }

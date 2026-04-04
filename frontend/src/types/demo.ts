@@ -44,6 +44,17 @@ export type StoryPayload = {
   id: string;
   profile_id: string;
   heritage_pack_id: string;
-  metadata: { title: string };
+  metadata: {
+    title: string;
+    created_at?: string;
+    created_by?: string;
+    speaker?: string;
+    audience?: string;
+    heritage_tags?: string[];
+    language_tags?: string[];
+    tone?: string[];
+  };
   beats: StoryBeat[];
+  throughline?: string;
+  dedication?: string;
 };

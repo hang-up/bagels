@@ -72,32 +72,6 @@
     },
     {
       "parameters": {
-        "jsCode": "const apiKey = $env.OPENAI_API_KEY;\nif (!apiKey) {\n  throw new Error(\"OPENAI_API_KEY is required for fact extraction\");\n}\n\nconst parseOutputJson = (responseJson) => {\n  if (responseJson.output_text) {\n    return JSON.parse(responseJson.output_text);\n  }\n  const output = responseJson.output || [];\n  for (const block of output) {\n    for (const content of block.content || []) {\n      if (content.type === \"output_text\" && content.text) {\n        return JSON.parse(content.text);\n      }\n    }\n  }\n  throw new Error(\"Could not parse JSON from model response\");\n};\n\nconst schema = {\n  type: \"object\",\n  additionalProperties: false,\n  required: [\"title\", \"summary\", \"tones\", \"themes\", \"memory_moments\", \"speaker_hint\", \"audience_hint\", \"dedication_hint\"],\n  properties: {\n    title: { type: \"string\" },\n    summary: { type: \"string\" },\n    tones: { type: \"array\", items: { type: \"string\" } },\n    themes: { type: \"array\", items: { type: \"string\" } },\n    memory_moments: { type: \"array\", items: { type: \"string\" } },\n    speaker_hint: { type: \"string\" },\n    audience_hint: { type: \"string\" },\n    dedication_hint: { type: \"string\" },\n  },\n};\n\nconst body = {\n  model: $json.structure_model,\n  input: [\n    {\n      role: \"system\",\n      content: [{\n        type: \"input_text\",\n        text: \"Extract grounded narrative facts from a family voice transcript. Do not invent specifics. Return JSON only.\",\n      }],\n    },\n    {\n      role: \"user\",\n      content: [{\n        type: \"input_text\",\n        text:\n          \"Profile: \" + JSON.stringify($json.profile) +\n          \"\\nHeritage Pack: \" + JSON.stringify($json.heritage_pack) +\n          \"\\nTranscript: \" + $json.transcript,\n      }],\n    },\n  ],\n  text: {\n    format: {\n      type: \"json_schema\",\n      name: \"story_facts\",\n      strict: true,\n      schema,\n    },\n  },\n};\n\nconst resp = await fetch(\"https://api.openai.com/v1/responses\", {\n  method: \"POST\",\n  headers: {\n    Authorization: \"Bearer \" + apiKey,\n    \"Content-Type\": \"application/json\",\n  },\n  body: JSON.stringify(body),\n});\n\nif (!resp.ok) {\n  const errText = await resp.text();\n  throw new Error(\"Fact extraction failed: \" + resp.status + \" \" + errText);\n}\n\nconst responseJson = await resp.json();\nconst facts = parseOutputJson(responseJson);\n\nreturn [{ json: { ...$json, facts } }];"
-      },
-      "id": "code_extract_facts",
-      "name": "Extract Story Facts (OpenAI)",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1410,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const apiKey = $env.OPENAI_API_KEY;\nif (!apiKey) {\n  throw new Error(\"OPENAI_API_KEY is required for story structuring\");\n}\n\nconst parseOutputJson = (responseJson) => {\n  if (responseJson.output_text) {\n    return JSON.parse(responseJson.output_text);\n  }\n  const output = responseJson.output || [];\n  for (const block of output) {\n    for (const content of block.content || []) {\n      if (content.type === \"output_text\" && content.text) {\n        return JSON.parse(content.text);\n      }\n    }\n  }\n  throw new Error(\"Could not parse JSON from model response\");\n};\n\nconst schema = {\n  type: \"object\",\n  additionalProperties: false,\n  required: [\"metadata\", \"throughline\", \"dedication\", \"beats\"],\n  properties: {\n    metadata: {\n      type: \"object\",\n      additionalProperties: false,\n      required: [\"title\", \"speaker\", \"audience\", \"tone\", \"language_tags\", \"heritage_tags\"],\n      properties: {\n        title: { type: \"string\" },\n        speaker: { type: \"string\" },\n        audience: { type: \"string\" },\n        tone: { type: \"array\", items: { type: \"string\" } },\n        language_tags: { type: \"array\", items: { type: \"string\" } },\n        heritage_tags: { type: \"array\", items: { type: \"string\" } },\n      },\n    },\n    throughline: { type: \"string\" },\n    dedication: { type: \"string\" },\n    beats: {\n      type: \"array\",\n      minItems: 4,\n      maxItems: 8,\n      items: {\n        type: \"object\",\n        additionalProperties: false,\n        required: [\"kind\", \"theme\", \"experience\", \"title\", \"content\", \"content_origin\", \"visual_prompt\", \"ambient_detail\"],\n        properties: {\n          kind: { type: \"string\" },\n          theme: { type: \"string\" },\n          experience: { type: \"string\" },\n          title: { type: \"string\" },\n          content: { type: \"string\" },\n          content_origin: { type: \"string\" },\n          visual_prompt: { type: \"string\" },\n          ambient_detail: { type: \"string\" },\n        },\n      },\n    },\n  },\n};\n\nconst body = {\n  model: $json.structure_model,\n  input: [\n    {\n      role: \"system\",\n      content: [{\n        type: \"input_text\",\n        text:\n          \"Transform family memory transcript facts into a structured story payload. Keep details grounded in transcript. Use only experiences: memory-cards, generated-image, recipe-scroll.\",\n      }],\n    },\n    {\n      role: \"user\",\n      content: [{\n        type: \"input_text\",\n        text:\n          \"Transcript: \" + $json.transcript +\n          \"\\nFacts: \" + JSON.stringify($json.facts) +\n          \"\\nProfile: \" + JSON.stringify($json.profile) +\n          \"\\nHeritage Pack: \" + JSON.stringify($json.heritage_pack) +\n          \"\\nOutput must fit the provided JSON schema.\",\n      }],\n    },\n  ],\n  text: {\n    format: {\n      type: \"json_schema\",\n      name: \"structured_story\",\n      strict: true,\n      schema,\n    },\n  },\n};\n\nconst resp = await fetch(\"https://api.openai.com/v1/responses\", {\n  method: \"POST\",\n  headers: {\n    Authorization: \"Bearer \" + apiKey,\n    \"Content-Type\": \"application/json\",\n  },\n  body: JSON.stringify(body),\n});\n\nif (!resp.ok) {\n  const errText = await resp.text();\n  throw new Error(\"Story structuring failed: \" + resp.status + \" \" + errText);\n}\n\nconst structured = parseOutputJson(await resp.json());\n\nconst safeSlug = (value) =>\n  String(value || \"memory\")\n    .toLowerCase()\n    .replace(/[^a-z0-9]+/g, \"-\")\n    .replace(/(^-|-$)/g, \"\")\n    .slice(0, 32) || \"memory\";\n\nconst datePart = new Date($json.generated_at || Date.now()).toISOString().slice(0, 10);\nconst profileSlug = String($json.profile_id || \"profile\").replace(/^profile-/, \"\");\nconst titleSlug = safeSlug(structured.metadata?.title);\nconst storyId = \"story-\" + profileSlug + \"-\" + datePart + \"-\" + titleSlug;\nconst allowedExperiences = new Set([\"memory-cards\", \"generated-image\", \"recipe-scroll\"]);\n\nconst beats = (structured.beats || []).slice(0, 8).map((beat, index) => ({\n  id: \"beat-\" + String(index + 1).padStart(3, \"0\"),\n  kind: beat.kind || \"memory\",\n  theme: beat.theme || \"memory\",\n  experience: allowedExperiences.has(beat.experience) ? beat.experience : \"memory-cards\",\n  title: beat.title || \"Memory\",\n  content: beat.content || \"\",\n  content_origin: beat.content_origin || beat.content || \"\",\n  visual_prompt: beat.visual_prompt || \"\",\n  ambient_detail: beat.ambient_detail || \"\",\n}));\n\nconst story = {\n  id: storyId,\n  profile_id: $json.profile_id,\n  heritage_pack_id: $json.heritage_pack_id,\n  status: \"complete\",\n  metadata: {\n    title: structured.metadata?.title || $json.facts?.title || \"Family Memory\",\n    created_at: datePart,\n    created_by: \"n8n workflow\",\n    speaker: structured.metadata?.speaker || $json.facts?.speaker_hint || $json.profile?.name || \"\",\n    audience: structured.metadata?.audience || $json.facts?.audience_hint || \"family\",\n    heritage_tags: structured.metadata?.heritage_tags || [$json.heritage_pack_id],\n    language_tags: structured.metadata?.language_tags || $json.profile?.language_tags || [\"en\"],\n    tone: structured.metadata?.tone || $json.facts?.tones || [\"warm\"],\n  },\n  beats,\n  throughline: structured.throughline || $json.facts?.summary || \"\",\n  dedication: structured.dedication || $json.facts?.dedication_hint || \"\",\n};\n\nreturn [{ json: { ...$json, story } }];"
-      },
-      "id": "code_structure_story",
-      "name": "Structure Story Payload (OpenAI)",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1660,
-        300
-      ]
-    },
-    {
-      "parameters": {
         "jsCode": "const story = $json.story;\nconst errors = [];\n\nif (!story || typeof story !== \"object\") {\n  errors.push(\"Missing story object\");\n} else {\n  const requiredTop = [\"id\", \"profile_id\", \"heritage_pack_id\", \"status\", \"metadata\", \"beats\"];\n  for (const key of requiredTop) {\n    if (story[key] === undefined || story[key] === null) errors.push(\"Missing top-level field: \" + key);\n  }\n\n  if (!Array.isArray(story.beats) || story.beats.length === 0) {\n    errors.push(\"Story requires at least one beat\");\n  }\n\n  const allowedExperiences = new Set([\"memory-cards\", \"generated-image\", \"recipe-scroll\"]);\n  for (const [idx, beat] of (story.beats || []).entries()) {\n    const requiredBeat = [\"id\", \"kind\", \"theme\", \"experience\", \"title\", \"content\"];\n    for (const key of requiredBeat) {\n      if (beat[key] === undefined || beat[key] === null || beat[key] === \"\") {\n        errors.push(\"Beat \" + (idx + 1) + \" missing field: \" + key);\n      }\n    }\n    if (beat.experience && !allowedExperiences.has(beat.experience)) {\n      errors.push(\"Beat \" + (idx + 1) + \" invalid experience: \" + beat.experience);\n    }\n  }\n}\n\nreturn [{\n  json: {\n    ...$json,\n    is_valid: errors.length === 0,\n    validation_errors: errors,\n  },\n}];"
       },
       "id": "code_validate_story",
@@ -193,6 +167,106 @@
         2610,
         380
       ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{\"Extract grounded narrative facts from this family voice transcript. Do not invent details. Return ONLY valid JSON (no markdown) with exactly these keys: title, summary, tones, themes, memory_moments, speaker_hint, audience_hint, dedication_hint.\\n\\nProfile: \" + JSON.stringify($json.profile) + \"\\nHeritage Pack: \" + JSON.stringify($json.heritage_pack) + \"\\nTranscript: \" + $json.transcript}}",
+        "options": {
+          "systemMessage": "You are a careful narrative analyst. Use only evidence in the transcript and provided profile/context. If a field is unknown, infer minimally and keep it generic."
+        }
+      },
+      "id": "agent_extract_facts",
+      "name": "Extract Story Facts (AI Agent)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1410,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "={{$json.structure_model || $env.OPENAI_STRUCTURING_MODEL || 'gpt-4.1-mini'}}"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "lm_facts_openai",
+      "name": "Facts Model (OpenAI Chat)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1410,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output ?? $json.text ?? $json.response ?? \"\";\nconst normalizeJson = (value) => {\n  if (typeof value === \"object\" && value !== null) return value;\n  const txt = String(value || \"\").trim();\n  if (!txt) throw new Error(\"Fact extraction returned empty output\");\n\n  // Accept plain JSON or fenced JSON blocks from the agent.\n  const fenced = txt.match(/```(?:json)?\\s*([\\s\\S]*?)```/i);\n  const candidate = fenced ? fenced[1].trim() : txt;\n  return JSON.parse(candidate);\n};\n\nconst parsed = normalizeJson(raw);\nconst facts = {\n  title: String(parsed.title || \"Family Memory\"),\n  summary: String(parsed.summary || \"\"),\n  tones: Array.isArray(parsed.tones) ? parsed.tones.map(String) : [\"warm\"],\n  themes: Array.isArray(parsed.themes) ? parsed.themes.map(String) : [\"family\"],\n  memory_moments: Array.isArray(parsed.memory_moments) ? parsed.memory_moments.map(String) : [],\n  speaker_hint: String(parsed.speaker_hint || $json.profile?.name || \"\"),\n  audience_hint: String(parsed.audience_hint || \"family\"),\n  dedication_hint: String(parsed.dedication_hint || \"\"),\n};\n\nreturn [{ json: { ...$json, facts, facts_raw: raw } }];"
+      },
+      "id": "code_parse_facts",
+      "name": "Parse Story Facts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1535,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{\"Transform transcript + extracted facts into a structured story payload draft. Keep details grounded in transcript. Use only experiences: memory-cards, generated-image, recipe-scroll. Return ONLY valid JSON (no markdown) with exactly: metadata {title,speaker,audience,tone[],language_tags[],heritage_tags[]}, throughline, dedication, beats[] where each beat has kind,theme,experience,title,content,content_origin,visual_prompt,ambient_detail.\\n\\nTranscript: \" + $json.transcript + \"\\nFacts: \" + JSON.stringify($json.facts) + \"\\nProfile: \" + JSON.stringify($json.profile) + \"\\nHeritage Pack: \" + JSON.stringify($json.heritage_pack)}}",
+        "options": {
+          "systemMessage": "You are a family-story editor. Keep the voice warm and specific, but never invent factual events not present in the transcript. Keep beats between 4 and 8."
+        }
+      },
+      "id": "agent_structure_story",
+      "name": "Structure Story Payload (AI Agent)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "={{$json.structure_model || $env.OPENAI_STRUCTURING_MODEL || 'gpt-4.1-mini'}}"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "lm_structure_openai",
+      "name": "Story Model (OpenAI Chat)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1660,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output ?? $json.text ?? $json.response ?? \"\";\nconst normalizeJson = (value) => {\n  if (typeof value === \"object\" && value !== null) return value;\n  const txt = String(value || \"\").trim();\n  if (!txt) throw new Error(\"Story structuring returned empty output\");\n\n  const fenced = txt.match(/```(?:json)?\\s*([\\s\\S]*?)```/i);\n  const candidate = fenced ? fenced[1].trim() : txt;\n  return JSON.parse(candidate);\n};\n\nconst structured = normalizeJson(raw);\n\nconst safeSlug = (value) =>\n  String(value || \"memory\")\n    .toLowerCase()\n    .replace(/[^a-z0-9]+/g, \"-\")\n    .replace(/(^-|-$)/g, \"\")\n    .slice(0, 32) || \"memory\";\n\nconst datePart = new Date($json.generated_at || Date.now()).toISOString().slice(0, 10);\nconst profileSlug = String($json.profile_id || \"profile\").replace(/^profile-/, \"\");\nconst titleSlug = safeSlug(structured.metadata?.title);\nconst storyId = \"story-\" + profileSlug + \"-\" + datePart + \"-\" + titleSlug;\nconst allowedExperiences = new Set([\"memory-cards\", \"generated-image\", \"recipe-scroll\"]);\n\nconst beats = (structured.beats || []).slice(0, 8).map((beat, index) => ({\n  id: \"beat-\" + String(index + 1).padStart(3, \"0\"),\n  kind: beat.kind || \"memory\",\n  theme: beat.theme || \"memory\",\n  experience: allowedExperiences.has(beat.experience) ? beat.experience : \"memory-cards\",\n  title: beat.title || \"Memory\",\n  content: beat.content || \"\",\n  content_origin: beat.content_origin || beat.content || \"\",\n  visual_prompt: beat.visual_prompt || \"\",\n  ambient_detail: beat.ambient_detail || \"\",\n}));\n\nconst story = {\n  id: storyId,\n  profile_id: $json.profile_id,\n  heritage_pack_id: $json.heritage_pack_id,\n  status: \"complete\",\n  metadata: {\n    title: structured.metadata?.title || $json.facts?.title || \"Family Memory\",\n    created_at: datePart,\n    created_by: \"n8n workflow\",\n    speaker: structured.metadata?.speaker || $json.facts?.speaker_hint || $json.profile?.name || \"\",\n    audience: structured.metadata?.audience || $json.facts?.audience_hint || \"family\",\n    heritage_tags: structured.metadata?.heritage_tags || [$json.heritage_pack_id],\n    language_tags: structured.metadata?.language_tags || $json.profile?.language_tags || [\"en\"],\n    tone: structured.metadata?.tone || $json.facts?.tones || [\"warm\"],\n  },\n  beats,\n  throughline: structured.throughline || $json.facts?.summary || \"\",\n  dedication: structured.dedication || $json.facts?.dedication_hint || \"\",\n};\n\nreturn [{ json: { ...$json, structured_raw: raw, structured_story: structured, story } }];"
+      },
+      "id": "code_build_story",
+      "name": "Build Story Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1785,
+        300
+      ]
     }
   ],
   "connections": {
@@ -244,29 +318,7 @@
       "main": [
         [
           {
-            "node": "Extract Story Facts (OpenAI)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract Story Facts (OpenAI)": {
-      "main": [
-        [
-          {
-            "node": "Structure Story Payload (OpenAI)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Structure Story Payload (OpenAI)": {
-      "main": [
-        [
-          {
-            "node": "Validate Story Shape",
+            "node": "Extract Story Facts (AI Agent)",
             "type": "main",
             "index": 0
           }
@@ -330,6 +382,72 @@
           {
             "node": "Failure Payload",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Story Facts (AI Agent)": {
+      "main": [
+        [
+          {
+            "node": "Parse Story Facts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Story Facts": {
+      "main": [
+        [
+          {
+            "node": "Structure Story Payload (AI Agent)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structure Story Payload (AI Agent)": {
+      "main": [
+        [
+          {
+            "node": "Build Story Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Story Payload": {
+      "main": [
+        [
+          {
+            "node": "Validate Story Shape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facts Model (OpenAI Chat)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Story Facts (AI Agent)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Model (OpenAI Chat)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structure Story Payload (AI Agent)",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
