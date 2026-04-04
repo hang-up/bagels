@@ -14,9 +14,9 @@
 
 ## 3. Build Shareable Storybook Rendering
 
-- [ ] 3.1 Implement a public shareable route that loads a completed story directly from the seeded data source
-- [ ] 3.2 Build the storybook renderer that reads the static structured story payload and renders beats in order
-- [ ] 3.3 Implement the `memory-cards` experience with animated text treatment suitable for readable story moments
+- [x] 3.1 Implement a public shareable route that loads a completed story directly from the seeded data source
+- [x] 3.2 Build the storybook renderer that reads the static structured story payload and renders beats in order
+- [x] 3.3 Implement the `memory-cards` experience with animated text treatment suitable for readable story moments
 - [ ] 3.4 Implement the `generated-image` experience using heritage pack context plus curated or generated visual assets
 - [ ] 3.5 Implement the `recipe-scroll` experience as an editorial food-memory layout for recipe and ritual content
 - [ ] 3.6 Layer custom story presentation on top of Clay foundations without breaking overall shell consistency
@@ -32,4 +32,4 @@
 - [ ] 5.1 Decide whether the demo runs frontend-only or with a thin mock backend, then wire the simplest stable loading path
 - [ ] 5.2 Add seeded queue states selected in demo data so the team can reliably show queued and completed stories on demand
 - [ ] 5.3 Add fallback assets or placeholder visuals for weak generated-image outputs to protect the demo
-- [ ] 5.4 Document where an n8n workflow or other simple LLM injection point can later replace the static story payload generation step
+- [x] 5.4 Document where an n8n workflow or other simple LLM injection point can later replace the static story payload generation step

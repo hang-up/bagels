@@ -1,44 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-
-type QueueStatus = "queued" | "processing" | "complete";
-
-type FamilyProfile = {
-  id: string;
-  name: string;
-  relationship_label: string;
-  heritage_pack_ids: string[];
-  language_tags: string[];
-};
-
-type HeritagePack = {
-  id: string;
-  label: string;
-};
-
-type QueueItem = {
-  id: string;
-  profile_id: string;
-  story_id: string | null;
-  title: string;
-  duration_seconds: number;
-  status: QueueStatus;
-};
-
-type StoryBeat = {
-  id: string;
-  experience: string;
-  title: string;
-  content: string;
-};
-
-type StoryPayload = {
-  id: string;
-  profile_id: string;
-  heritage_pack_id: string;
-  metadata: { title: string };
-  beats: StoryBeat[];
-};
+import { computed, onMounted, ref, watch } from "vue";
+import StorybookRenderer from "./components/StorybookRenderer.vue";
+import type {
+  FamilyProfile,
+  HeritagePack,
+  QueueItem,
+  QueueStatus,
+  StoryPayload,
+} from "./types/demo";
 
 const API_BASE = "/api";
 
@@ -49,6 +18,9 @@ const selectedProfileId = ref<string | null>(null);
 const statusNote = ref("");
 const story = ref<StoryPayload | null>(null);
 const apiError = ref("");
+const storyLoadError = ref("");
+
+const waveformCache = new Map<string, number[]>();
 
 const storyRouteId = () => {
   const match = window.location.pathname.match(/^\/story\/([^/]+)$/);
@@ -62,12 +34,18 @@ const selectedProfile = computed(() =>
 );
 
 const queueForProfile = computed(() => {
-  if (!selectedProfileId.value) return queue.value;
-  return queue.value.filter((item) => item.profile_id === selectedProfileId.value);
+  const ordered = [...queue.value].sort((a, b) => {
+    const aTime = a.submitted_at ? Date.parse(a.submitted_at) : 0;
+    const bTime = b.submitted_at ? Date.parse(b.submitted_at) : 0;
+    return bTime - aTime;
+  });
+
+  if (!selectedProfileId.value) return ordered;
+  return ordered.filter((item) => item.profile_id === selectedProfileId.value);
 });
 
 const profileNameById = (id: string) =>
-  profiles.value.find((profile) => profile.id === id)?.name ?? "Unknown";
+  profiles.value.find((profile) => profile.id === id)?.name ?? "Loved one";
 
 const heritageLabel = (id: string) =>
   heritagePacks.value.find((pack) => pack.id === id)?.label ?? id;
@@ -79,6 +57,69 @@ const badgeClass = (status: QueueStatus) => {
   if (status === "complete") return "badge badge-success";
   if (status === "processing") return "badge badge-warning";
   return "badge badge-secondary";
+};
+
+const statusLabel = (status: QueueStatus) => {
+  if (status === "complete") return "Ready";
+  if (status === "processing") return "Processing";
+  return "Queued";
+};
+
+const formatDuration = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return `${minutes}:${remainder.toString().padStart(2, "0")}`;
+};
+
+const formatSubmittedAt = (submittedAt?: string) => {
+  if (!submittedAt) return "No date";
+  const date = new Date(submittedAt);
+  if (Number.isNaN(date.getTime())) return "No date";
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
+
+const seedHash = (value: string) => {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+};
+
+const buildWaveformBars = (seedSource: string, barsCount = 68) => {
+  let state = seedHash(seedSource) || 1;
+
+  const random = () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return state / 4294967295;
+  };
+
+  const bars: number[] = [];
+  for (let i = 0; i < barsCount; i += 1) {
+    const position = i / (barsCount - 1);
+    const envelope = Math.pow(Math.sin(Math.PI * position), 0.8);
+    const jitter = 0.45 + random() * 0.55;
+    const harmonic = 0.6 + 0.4 * Math.sin(i * 0.55 + random() * Math.PI);
+    const peak = 0.1 + envelope * jitter * harmonic;
+    const height = Math.max(10, Math.min(100, Math.round(peak * 100)));
+    bars.push(height);
+  }
+
+  return bars;
+};
+
+const waveformBars = (item: QueueItem) => {
+  const key = `${item.waveform_seed ?? item.id}-${item.duration_seconds}`;
+  if (!waveformCache.has(key)) {
+    waveformCache.set(key, buildWaveformBars(key));
+  }
+  return waveformCache.get(key) ?? [];
 };
 
 const fetchJson = async <T,>(path: string): Promise<T> => {
@@ -98,8 +139,8 @@ const openQueueItem = (item: QueueItem) => {
     navigateTo(`/story/${item.story_id}`);
     return;
   }
-  statusNote.value =
-    "This recording is still queued/processing in demo mode and is not readable yet.";
+
+  statusNote.value = "This voice story is still in queue and is not readable yet.";
 };
 
 const hydrateBaseData = async () => {
@@ -112,18 +153,23 @@ const hydrateBaseData = async () => {
   profiles.value = profilesPayload;
   heritagePacks.value = heritagePayload;
   queue.value = queuePayload;
-
-  if (!selectedProfileId.value) {
-    selectedProfileId.value = profilesPayload[0]?.id ?? null;
-  }
 };
 
 const loadStory = async () => {
+  storyLoadError.value = "";
   if (!routeStoryId.value) {
     story.value = null;
     return;
   }
-  story.value = await fetchJson<StoryPayload>(`/stories/${routeStoryId.value}`);
+
+  try {
+    story.value = await fetchJson<StoryPayload>(
+      `/share/stories/${routeStoryId.value}`,
+    );
+  } catch {
+    story.value = null;
+    storyLoadError.value = "This story link is unavailable or not complete yet.";
+  }
 };
 
 const initialize = async () => {
@@ -137,91 +183,109 @@ const initialize = async () => {
 
 onMounted(() => {
   initialize();
-  window.addEventListener("popstate", async () => {
+  window.addEventListener("popstate", () => {
     routeStoryId.value = storyRouteId();
     statusNote.value = "";
-    await loadStory();
   });
+});
+
+watch(routeStoryId, () => {
+  void loadStory();
 });
 </script>
 
 <template>
   <main class="shell">
     <section v-if="apiError" class="panel">
-      <h1 class="title">API unavailable</h1>
+      <h1 class="title">Hana unavailable</h1>
       <p class="muted">{{ apiError }}</p>
     </section>
 
-    <template v-else-if="routeStoryId && story">
-      <section class="panel story-wrap">
-        <button class="back-btn" type="button" @click="navigateTo('/')">Back to Queue</button>
+    <template v-else-if="routeStoryId">
+      <section v-if="story" class="panel story-wrap">
+        <button class="back-btn" type="button" @click="navigateTo('/')">Back Home</button>
         <h1 class="title">{{ story.metadata.title }}</h1>
         <p class="muted">
           {{ profileNameById(story.profile_id) }} • {{ heritageLabel(story.heritage_pack_id) }}
         </p>
+        <StorybookRenderer :story="story" />
+      </section>
 
-        <article v-for="beat in story.beats" :key="beat.id" class="beat">
-          <span class="chip">{{ beat.experience }}</span>
-          <h3>{{ beat.title }}</h3>
-          <p>{{ beat.content }}</p>
-        </article>
+      <section v-else class="panel story-wrap">
+        <button class="back-btn" type="button" @click="navigateTo('/')">Back Home</button>
+        <h1 class="title">Story Unavailable</h1>
+        <p class="muted">{{ storyLoadError || "Loading story..." }}</p>
       </section>
     </template>
 
     <template v-else>
-      <section class="panel hero">
-        <h1 class="title">Family Story Capture</h1>
-        <p class="muted">
-          Clay-based shell for profile selection and queue browsing with seeded story states.
-        </p>
+      <section class="home-head">
+        <p class="brand">Hana</p>
+        <h1 class="home-title">Home</h1>
       </section>
 
-      <section class="panel">
+      <section class="home-section">
         <div class="row-head">
-          <h2>Family Profiles</h2>
-          <small class="muted">Preloaded heritage context</small>
+          <h2>Loved Ones</h2>
         </div>
+
         <div class="profiles-grid">
           <button
             v-for="profile in profiles"
             :key="profile.id"
             type="button"
-            class="profile-btn card"
+            class="profile-btn"
             :class="{ active: selectedProfileId === profile.id }"
             @click="
-              selectedProfileId = profile.id;
+              selectedProfileId = selectedProfileId === profile.id ? null : profile.id;
               statusNote = '';
             "
           >
-            <strong>{{ profile.name }}</strong>
-            <p class="muted profile-meta">{{ profile.relationship_label }}</p>
-            <p class="muted profile-meta">{{ profileHeritageLabel(profile) }}</p>
+            <div class="avatar" aria-hidden="true">{{ profile.name.slice(0, 1) }}</div>
+            <div>
+              <strong>{{ profile.name }}</strong>
+              <p class="muted profile-meta">{{ profile.relationship_label }}</p>
+              <p class="muted profile-meta">{{ profileHeritageLabel(profile) }}</p>
+            </div>
           </button>
         </div>
       </section>
 
-      <section class="panel">
+      <section class="home-section">
         <div class="row-head">
-          <h2>Story Queue</h2>
-          <small class="muted">SoundCloud-style cards, non-playable waveform</small>
+          <h2>Voice Stories</h2>
         </div>
 
-        <p class="active-profile" v-if="selectedProfile">Showing {{ selectedProfile.name }}</p>
+        <p class="active-profile" v-if="selectedProfile">
+          Showing stories for {{ selectedProfile.name }}
+        </p>
 
         <div class="queue-list">
           <article
             v-for="item in queueForProfile"
             :key="item.id"
-            class="queue-card card"
+            class="queue-card"
             :class="{ 'not-ready': item.status !== 'complete' }"
             @click="openQueueItem(item)"
           >
             <div class="queue-head">
               <h3>{{ item.title }}</h3>
-              <span :class="badgeClass(item.status)">{{ item.status }}</span>
+              <span :class="badgeClass(item.status)">{{ statusLabel(item.status) }}</span>
             </div>
-            <p class="muted">{{ profileNameById(item.profile_id) }} • {{ item.duration_seconds }}s</p>
-            <div class="wave" />
+
+            <p class="muted queue-meta">
+              {{ profileNameById(item.profile_id) }} • {{ formatDuration(item.duration_seconds) }} •
+              {{ formatSubmittedAt(item.submitted_at) }}
+            </p>
+
+            <div class="waveform" aria-hidden="true">
+              <span
+                v-for="(bar, index) in waveformBars(item)"
+                :key="`${item.id}-bar-${index}`"
+                class="wave-bar"
+                :style="{ height: `${bar}%` }"
+              />
+            </div>
           </article>
 
           <p class="muted" v-if="queueForProfile.length === 0">No recordings for this profile yet.</p>

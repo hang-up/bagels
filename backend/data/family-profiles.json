@@ -1,16 +1,39 @@
 [
   {
     "id": "profile-noura",
-    "name": "Noura El Idrissi",
-    "relationship_label": "Grandma",
-    "heritage_pack_ids": ["north-african"],
-    "language_tags": ["en", "ar"]
+    "name": "Noura",
+    "relationship_label": "Grandmother",
+    "heritage_pack_ids": [
+      "north-african"
+    ],
+    "language_tags": [
+      "en",
+      "ar"
+    ]
   },
   {
     "id": "profile-lila",
-    "name": "Lila Noor",
-    "relationship_label": "Auntie",
-    "heritage_pack_ids": ["southeast-asian"],
-    "language_tags": ["en", "ms"]
+    "name": "Lila",
+    "relationship_label": "Aunt",
+    "heritage_pack_ids": [
+      "southeast-asian"
+    ],
+    "language_tags": [
+      "en",
+      "ms"
+    ]
+  },
+  {
+    "id": "profile-nanay",
+    "name": "Nanay",
+    "relationship_label": "Mother",
+    "heritage_pack_ids": [
+      "southeast-asian"
+    ],
+    "language_tags": [
+      "en",
+      "tl",
+      "ilo"
+    ]
   }
 ]

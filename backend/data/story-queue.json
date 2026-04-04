@@ -28,5 +28,15 @@
     "waveform_seed": "wf-775-sea",
     "status": "processing",
     "submitted_at": "2026-04-04T10:20:00Z"
+  },
+  {
+    "id": "queue-004",
+    "profile_id": "profile-nanay",
+    "story_id": "story-nanay-morning-walk",
+    "title": "Before the Bell Rang",
+    "duration_seconds": 312,
+    "waveform_seed": "wf-447-cag",
+    "status": "complete",
+    "submitted_at": "2026-04-04T11:05:00Z"
   }
 ]

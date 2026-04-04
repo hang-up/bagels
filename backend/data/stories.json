@@ -1,37 +1,100 @@
 [
   {
-    "id": "story-noura-friday-kitchen",
-    "profile_id": "profile-noura",
-    "heritage_pack_id": "north-african",
+    "id": "story-nanay-morning-walk",
+    "profile_id": "profile-nanay",
+    "heritage_pack_id": "southeast-asian",
     "status": "complete",
     "metadata": {
-      "title": "The Kitchen That Smelled Like Mint Tea",
+      "title": "Before the Bell Rang",
       "created_at": "2026-04-04",
       "created_by": "Sarah Khalid",
-      "speaker": "Noura El Idrissi"
+      "speaker": "Nanay",
+      "audience": "anak",
+      "heritage_tags": [
+        "filipino",
+        "ilocano",
+        "cagayan-valley"
+      ],
+      "language_tags": [
+        "en",
+        "tl",
+        "ilo"
+      ],
+      "tone": [
+        "warm",
+        "nostalgic",
+        "tender"
+      ]
     },
     "beats": [
       {
         "id": "beat-001",
-        "theme": "relationship",
-        "experience": "memory-cards",
-        "title": "Hands that taught patience",
-        "content": "She said a meal tastes better when you cook for someone specific."
+        "kind": "opening",
+        "theme": "memory",
+        "experience": "text-narrative",
+        "title": "Before the rooster finished",
+        "content": "We didn't have alarm clocks. The rooster would crow and Nanay would already be up. You could hear the wood fire starting — that crackling sound, you know? And then the smell of rice. Always rice first. I would lie on the banig for just one more minute, but the light was already coming through the slats in the wall.",
+        "content_origin": "Wala kaming alarm clock. Titilaok ang manok, gising na si Nanay. Maririnig mo yung apoy — yung lagitik ng kahoy. Tapos amoy na ng kanin. Lagi, kanin muna. Isang minuto pa ako sa banig, pero pumasok na yung liwanag sa dingding.",
+        "visual_prompt": "Pre-dawn interior of a rural Filipino nipa hut, woven bamboo walls with thin morning light slicing through the slats, a child lying on a woven banig mat, smoke visible from a wood fire in the adjacent kitchen area, warm amber and blue-gray tones, Cagayan Valley province",
+        "ambient_detail": "The crack of kindling and the first smell of rice steam before dawn."
       },
       {
         "id": "beat-002",
-        "theme": "narrative",
-        "experience": "generated-image",
-        "title": "Friday light in the courtyard",
-        "content": "Steam rose from the couscous while sunlight crossed the old tiles."
+        "kind": "food-memory",
+        "theme": "food",
+        "experience": "recipe-scroll",
+        "title": "Almusal — what we had and didn't",
+        "content": "Breakfast was simple. Sinangag — the garlic rice from last night's leftover. Tuyo if we had it, the dried fish. You fry it and the whole house smells. Your fingers smell the whole day, even at school, even after washing. Sometimes there was no ulam, so just rice and salt, or rice and soy sauce. Nanay would wrap extra rice in banana leaf for me to eat at recess. She'd tie it with a piece of string. That was my baon.",
+        "content_origin": "Simple lang ang almusal. Sinangag — yung kanin kagabi na ginisa sa bawang. Tuyo kung meron. Pag pinrito mo, amoy na buong bahay. Amoy pa rin daliri mo hanggang eskwelahan, kahit naghugas ka na. Minsan walang ulam — kanin at asin lang, o kanin at toyo. Binabalot ni Nanay yung sobrang kanin sa dahon ng saging para sa recess ko. Tinatali niya ng sinulid. Yun ang baon ko.",
+        "visual_prompt": "A simple Filipino breakfast spread on a wooden table: garlic fried rice (sinangag) in a shallow clay bowl, a small piece of dried fish (tuyo) frying in a blackened pan, banana leaf with rice being wrapped and tied with string, a child's small hands reaching, warm kitchen light from a wood fire, rural Cagayan Valley kitchen",
+        "ambient_detail": "Garlic popping in oil and the permanent tuyo smell on small fingers."
       },
       {
         "id": "beat-003",
-        "theme": "food",
-        "experience": "recipe-scroll",
-        "title": "Couscous for the whole house",
-        "content": "She layered vegetables by color and never rushed the broth."
+        "kind": "place-memory",
+        "theme": "place",
+        "experience": "memory-cards",
+        "title": "The first part of the walk",
+        "content": "From our house to the road was already far. You go down the path — it's not a real road, just dirt, and if it rained the night before, you're walking in mud up to here. I wore tsinelas, the rubber ones. Sometimes I'd take them off and carry them so they wouldn't get stuck. You feel everything with your feet — the cold mud, the sharp little rocks, the grass on the side where it's drier.\n\nThen you reach the rice paddies. In the morning the water is so still, it looks like glass. You can see the sky in it. The mountains behind. Everything is green — not one green, but every green. The rice, the banana leaves, the talahib grass on the hillside, the kangkong growing wild by the irrigation ditch. And it's quiet. Just your feet and the frogs. There was always a carabao somewhere. Just standing in the water, not moving, looking at you like you're the strange one. Their skin is so dark, almost black, and they have these big slow eyes. Sometimes a farmer is already out, riding on the carabao's back to the next field. He'd wave at us. Everyone knew everyone.\n\nThen the river. Not a big river, but when it rained, it moved fast. There were stepping stones, but they'd be underwater sometimes. So you hold your bag over your head and you walk through. The water is cold — so cold in the morning. Your school skirt gets wet. You just keep walking. No choice. By the time you get to school, you're dry from the sun.",
+        "content_origin": "Malayo na agad mula bahay hanggang daan. Bababa ka sa path — hindi tunay na daan, lupa lang, at pag umulan kagabi, putik hanggang dito. Tsinelas ko yung goma. Minsan tinatanggal ko na lang, dala ko na lang para hindi lumubog. Nararamdaman mo lahat sa paa — yung malamig na putik, yung matalim na maliliit na bato, yung damo sa gilid kung saan mas tuyo.\n\nTapos aabot ka sa palayan. Sa umaga sobrang tahimik ng tubig, parang salamin. Kita mo ang langit doon. Ang bundok sa likod. Lahat berde — hindi isang berde lang, kundi lahat ng berde. Yung palay, yung dahon ng saging, yung talahib sa burol, yung kangkong sa tabi ng kanal. Tahimik. Yung paa mo lang at mga palaka. Palaging may kalabaw. Nakatayo lang sa tubig, hindi gumagalaw, nakatingin sa'yo parang ikaw ang kakaiba. Sobrang itim ng balat nila, at malaki yung mga matang mabagal. Minsan may magsasaka na, nakasakay na sa likod ng kalabaw papunta sa kabilang bukid. Kakaway sa amin. Kilala ng lahat ang lahat.\n\nTapos yung ilog. Hindi malaking ilog, pero pag umulan, mabilis ang agos. May mga bato na tinatapakan, pero minsan nasa ilalim na ng tubig. Kaya itataas mo ang bag mo sa ulo at tatawid ka. Malamig ang tubig — sobrang lamig sa umaga. Mababasa yung palda mo. Tuloy lang. Wala namang choice. Pagdating mo sa eskwelahan, tuyo ka na dahil sa araw.",
+        "visual_prompt": "Early morning Cagayan Valley landscape: a narrow dirt path winding through lush green rice paddies with perfectly still water reflecting mountains and sky, banana trees and talahib grass framing the edges, morning mist low on the ground, a small child walking barefoot carrying rubber slippers in one hand, school uniform visible, the Sierra Madre mountains in the background, everything saturated green with golden morning light breaking through",
+        "ambient_detail": "Water so still in the paddies you could see the mountains twice."
+      },
+      {
+        "id": "beat-005",
+        "kind": "place-memory",
+        "theme": "place",
+        "experience": "photo-moment",
+        "title": "The last stretch — where the road begins",
+        "content": "After the river, you reach the real road. Concrete. That's when other kids start appearing — from the other barangays, from the other side. Everyone is walking. Some kids are running because they're late. Some are eating their baon already because they're hungry. You start hearing voices, laughing, someone's lola selling bibingka on the corner before the school.\n\nThe school is just a building — concrete block, tin roof, open windows. Nothing fancy. But it was ours. The flag ceremony was first. You stand in line, hand on your chest. Lupang Hinirang. Then you go inside and it smells like chalk and old wood. And your feet are finally dry.",
+        "content_origin": "Pagkatapos ng ilog, aabot ka sa tunay na daan. Semento na. Doon na lumalabas yung ibang bata — galing sa ibang barangay, sa kabilang dako. Lahat naglalakad. May tumatakbo kasi late na. May kumakain na ng baon kasi gutom na. Maririnig mo na mga boses, tawanan, may lola na nagbebenta ng bibingka sa kanto bago ang eskwelahan.\n\nYung eskwelahan, gusali lang — bloke, bubong na yero, bukas ang bintana. Walang magarbong. Pero sa amin yun. Flag ceremony muna. Pumila, kamay sa dibdib. Lupang Hinirang. Tapos papasok ka na at amoy tsalk at lumang kahoy. At tuyo na ang paa mo.",
+        "visual_prompt": "A rural Philippine elementary school: concrete block building with a corrugated tin roof and open louvered windows, a Philippine flag on a simple pole, children in white and blue uniforms gathering for flag ceremony, an elderly woman (lola) selling bibingka from a small cart near the school gate, a dusty concrete road with children walking from different directions, morning sun fully up, warm golden light",
+        "ambient_detail": "Chalk dust and old wood and the last of the morning cold leaving your feet."
+      },
+      {
+        "id": "beat-006",
+        "kind": "family-bond",
+        "theme": "relationship",
+        "experience": "memory-cards",
+        "title": "The walk back was different",
+        "content": "Going home was always different. You're tired. The sun is hot, not gentle like the morning. The rice paddies look different — the light is on top of the water now, not inside it. Everything is loud — the insects, the birds, the other kids still playing somewhere.\n\nBut you know what I remember most? I remember seeing our house from far away and knowing Nanay was already cooking. You could see the smoke. From the path, before you even get close, you see this thin line of smoke from our kitchen, and you know — she's there. She didn't go anywhere. She was always there when we came back.\n\nThat's what I think about now. Not the walk. The smoke.",
+        "content_origin": "Pag-uwi laging iba. Pagod ka na. Mainit ang araw, hindi na malambot tulad ng umaga. Iba ang itsura ng palayan — nasa ibabaw na ng tubig ang liwanag, hindi na sa loob. Maingay na lahat — mga kulisap, mga ibon, mga batang naglalaro pa kung saan.\n\nPero alam mo ang pinaka-naalala ko? Naalala ko yung nakikita ko na yung bahay namin mula sa malayo at alam kong nagluluto na si Nanay. Kita mo yung usok. Mula sa daan, bago ka pa lumapit, may manipis na usok galing sa kusina namin, at alam mo — nandoon siya. Hindi siya umalis. Lagi siyang nandoon pag-uwi namin.\n\nYun ang iniisip ko ngayon. Hindi yung lakad. Yung usok.",
+        "visual_prompt": "Late afternoon view from a dirt path looking toward a distant nipa hut with a thin line of wood smoke rising from the kitchen, golden hour light casting long shadows across rice paddies, a child walking alone on the path toward home, the Sierra Madre mountains behind, everything warm and amber, the smoke catching the last light — the focal point of the entire image",
+        "ambient_detail": "A thin line of kitchen smoke visible from the path, and knowing she was there."
+      },
+      {
+        "id": "beat-007",
+        "kind": "closing",
+        "theme": "identity",
+        "experience": "text-narrative",
+        "title": "Yun ang baon ko",
+        "content": "People ask me if it was hard, walking that far every day. I say no. It wasn't hard. It was just what we did. That was the morning. You wake up, you eat, you walk, you cross the river, you learn something, you walk back. And your mother is there.\n\nNow I drive you to school in ten minutes and you complain about traffic. But that's okay. You don't need to walk through mud to know where you come from. You just need to listen. Yun ang baon mo — the story. That's what I'm wrapping up for you now. Like rice in a banana leaf.",
+        "content_origin": "Tinatanong ako kung mahirap ba, naglalakad ganun kalayo araw-araw. Sabi ko hindi. Hindi mahirap. Ganun lang talaga. Yun ang umaga. Gising, kain, lakad, tawid sa ilog, matuto, lakad pauwi. At nandoon ang nanay mo.\n\nNgayon, dina-drive kita sa school sa sampung minuto at nagrereklamo ka sa traffic. Pero okay lang. Hindi mo kailangan maglakad sa putik para malaman kung saan ka galing. Makinig ka lang. Yun ang baon mo — ang kwento. Yun ang binabalot ko para sa'yo ngayon. Parang kanin sa dahon ng saging.",
+        "visual_prompt": "Close-up of a woman's weathered but gentle hands wrapping rice in a fresh banana leaf, tying it with string, warm kitchen light, the gesture tender and deliberate — a metaphor made physical, shallow depth of field, the background suggesting a modern kitchen but the hands and the leaf connecting to the rural past",
+        "ambient_detail": "Rice wrapped in banana leaf, tied with string. That was always enough."
       }
-    ]
+    ],
+    "throughline": "The walk to school was never about the distance — it was the morning that held everything: the food, the land, the cold river, and the smoke that meant she was home.",
+    "dedication": "Para kay Nanay, na laging nandoon pag-uwi namin."
   }
 ]
