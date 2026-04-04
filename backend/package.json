@@ -4,11 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node src/index.js",
+    "dev": "nodemon -L --watch src --watch data --ext js,json src/index.js",
     "start": "node src/index.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "hono": "^4.6.15"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }

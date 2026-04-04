@@ -19,20 +19,23 @@ services:
     restart: unless-stopped
     volumes:
       - ./backend/data:/data
-      - ./adminer/sqlite-no-credentials.php:/var/www/html/plugins-enabled/sqlite-no-credentials.php
+    networks:
+      - bagelhacks_network
 
   api:
     build:
       context: ./backend
       dockerfile: Dockerfile
       target: development-stage
+    command: sh -c "npm install && npm run dev"
     ports:
-      - "3000:3000"
+      - "3100:3100"
     environment:
-      PORT: 3000
+      PORT: 3100
+      CHOKIDAR_USEPOLLING: "true"
     volumes:
       - ./backend:/app
-      - /app/node_modules
+      - backend_node_modules:/app/node_modules
     networks:
       - bagelhacks_network
 
@@ -41,21 +44,25 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: development-stage
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
     ports:
       - "5173:5173"
     environment:
       # Use relative URL - all requests go through nginx proxy
       VITE_API_URL: /api/
+      CHOKIDAR_USEPOLLING: "true"
     depends_on:
       - api
-    # Mount frontend code for development. Use anonymous volume for node_modules
-    # to preserve container's Linux-compatible binaries
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      - frontend_node_modules:/app/node_modules
     networks:
       - bagelhacks_network
 
 networks:
   bagelhacks_network:
     driver: bridge
+
+volumes:
+  backend_node_modules:
+  frontend_node_modules:
