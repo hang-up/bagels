@@ -1,0 +1,61 @@
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - api
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - bagelhacks_network
+
+  adminer:
+    container_name: adminer
+    image: adminer:latest
+    ports:
+      - "850:8080"
+    restart: unless-stopped
+    volumes:
+      - ./backend/data:/data
+      - ./adminer/sqlite-no-credentials.php:/var/www/html/plugins-enabled/sqlite-no-credentials.php
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development-stage
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - bagelhacks_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development-stage
+    ports:
+      - "5173:5173"
+    environment:
+      # Use relative URL - all requests go through nginx proxy
+      VITE_API_URL: /api/
+    depends_on:
+      - api
+    # Mount frontend code for development. Use anonymous volume for node_modules
+    # to preserve container's Linux-compatible binaries
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - bagelhacks_network
+
+networks:
+  bagelhacks_network:
+    driver: bridge
