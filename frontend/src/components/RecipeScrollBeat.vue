@@ -13,13 +13,6 @@ const splitParagraphs = (text?: string) =>
     .map((chunk) => chunk.trim())
     .filter(Boolean);
 
-const splitSentences = (text?: string) =>
-  (text ?? "")
-    .replace(/\s+/g, " ")
-    .split(/(?<=[.!?])\s+/)
-    .map((chunk) => chunk.trim())
-    .filter(Boolean);
-
 const storyParagraphs = computed(() => splitParagraphs(props.beat.content));
 const leadParagraph = computed(() => storyParagraphs.value[0] ?? "");
 const trailingParagraphs = computed(() => storyParagraphs.value.slice(1));
@@ -68,37 +61,27 @@ const highlightedLead = computed(() => {
   };
 });
 
-const pantryNotes = computed(() => {
+const recipeIngredients = computed(() => {
+  if (dishName.value.toLowerCase() === "sinangag") {
+    return [
+      "2 cups cold cooked rice",
+      "4 cloves garlic, minced",
+      "2 tablespoons neutral oil",
+      "1 teaspoon sea salt",
+      "2 scallions, thinly sliced",
+      "Fresh cracked black pepper",
+    ];
+  }
+
   if (props.beat.ingredients?.length) return props.beat.ingredients.slice(0, 6);
 
-  return splitSentences(props.beat.content)
-    .slice(0, 5)
-    .map((sentence) => sentence.replace(/[.!?]$/, ""));
-});
-
-const ritualSteps = computed(() => {
-  if (props.beat.rituals?.length) return props.beat.rituals.slice(0, 5);
-
-  const keywords = [
-    "fry",
-    "stir",
-    "serve",
-    "wrap",
-    "tie",
-    "cook",
-    "eat",
-    "smell",
+  return [
+    "Cooked rice",
+    "Garlic",
+    "Oil",
+    "Salt",
   ];
-
-  const matched = splitSentences(props.beat.content).filter((sentence) =>
-    keywords.some((keyword) => sentence.toLowerCase().includes(keyword)),
-  );
-
-  return (matched.length ? matched : splitSentences(props.beat.content)).slice(0, 4);
 });
-
-const hoverPantryNotes = computed(() => pantryNotes.value.slice(0, 4));
-const hoverRitualSteps = computed(() => ritualSteps.value.slice(0, 3));
 
 const visualAsset = computed(
   () => props.beat.asset_url ?? props.beat.image_url ?? props.sceneImage ?? "",
@@ -154,32 +137,16 @@ const visualPromptPreview = computed(() => {
                   Often eaten with {{ companionDish.toLowerCase() }} when there was some.
                 </span>
 
-                <span class="dish-card-grid">
-                  <span v-if="hoverPantryNotes.length" class="dish-card-section">
-                    <span class="dish-card-label">Pantry Notes</span>
+                <span v-if="recipeIngredients.length" class="dish-card-grid">
+                  <span class="dish-card-section">
+                    <span class="dish-card-label">Ingredients</span>
                     <span class="dish-card-list">
                       <span
-                        v-for="(note, index) in hoverPantryNotes"
-                        :key="`${beat.id}-hover-note-${index}`"
+                        v-for="(ingredient, index) in recipeIngredients"
+                        :key="`${beat.id}-ingredient-${index}`"
                         class="dish-card-pill"
                       >
-                        {{ note }}
-                      </span>
-                    </span>
-                  </span>
-
-                  <span v-if="hoverRitualSteps.length" class="dish-card-section">
-                    <span class="dish-card-label">Ritual Steps</span>
-                    <span class="dish-card-steps">
-                      <span
-                        v-for="(step, index) in hoverRitualSteps"
-                        :key="`${beat.id}-hover-step-${index}`"
-                        class="dish-card-step"
-                      >
-                        <span class="dish-card-step-number">
-                          {{ String(index + 1).padStart(2, "0") }}
-                        </span>
-                        <span>{{ step }}</span>
+                        {{ ingredient }}
                       </span>
                     </span>
                   </span>
