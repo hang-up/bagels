@@ -10,7 +10,7 @@ import type {
   StoryPayload,
 } from "./types/demo";
 
-const API_BASE = "/api";
+const DATA_BASE = "/data";
 
 const profiles = ref<FamilyProfile[]>([]);
 const heritagePacks = ref<HeritagePack[]>([]);
@@ -189,9 +189,37 @@ const waveformBars = (item: QueueItem) => {
 };
 
 const fetchJson = async <T,>(path: string): Promise<T> => {
-  const response = await fetch(`${API_BASE}${path}`);
-  if (!response.ok) throw new Error(`Request failed: ${path}`);
-  return response.json() as Promise<T>;
+  if (path === "/family-profiles") {
+    const response = await fetch(`${DATA_BASE}/family-profiles.json`);
+    if (!response.ok) throw new Error(`Request failed: ${path}`);
+    return response.json() as Promise<T>;
+  }
+
+  if (path === "/heritage-packs") {
+    const response = await fetch(`${DATA_BASE}/heritage-packs.json`);
+    if (!response.ok) throw new Error(`Request failed: ${path}`);
+    return response.json() as Promise<T>;
+  }
+
+  if (path === "/story-queue") {
+    const response = await fetch(`${DATA_BASE}/story-queue.json`);
+    if (!response.ok) throw new Error(`Request failed: ${path}`);
+    return response.json() as Promise<T>;
+  }
+
+  if (path.startsWith("/share/stories/")) {
+    const storyId = path.split("/").pop();
+    const response = await fetch(`${DATA_BASE}/stories.json`);
+    if (!response.ok) throw new Error(`Request failed: ${path}`);
+
+    const stories = (await response.json()) as StoryPayload[];
+    const story = stories.find((item) => item.id === storyId);
+    if (!story) throw new Error(`Story not found: ${path}`);
+
+    return story as T;
+  }
+
+  throw new Error(`Unknown path: ${path}`);
 };
 
 const navigateTo = (path: string) => {
@@ -253,7 +281,7 @@ const initialize = async () => {
     await hydrateBaseData();
     await loadStory();
   } catch {
-    apiError.value = "Could not load data from /api.";
+    apiError.value = "Could not load data from static files.";
   }
 };
 

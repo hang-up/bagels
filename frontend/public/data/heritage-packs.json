@@ -1,0 +1,30 @@
+[
+  {
+    "id": "north-african",
+    "label": "North African",
+    "style_tokens": {
+      "palette": ["terracotta", "desert-sand", "olive"],
+      "texture": "zellige",
+      "motifs": ["courtyard", "mint-tea", "family-table"]
+    },
+    "image_prompt_fragments": [
+      "warm medina sunset lighting",
+      "handcrafted ceramic patterns",
+      "family storytelling atmosphere"
+    ]
+  },
+  {
+    "id": "southeast-asian",
+    "label": "Southeast Asian",
+    "style_tokens": {
+      "palette": ["banana-leaf", "coconut-cream", "rainforest-gold"],
+      "texture": "woven-rattan",
+      "motifs": ["night-market", "family-kitchen", "monsoon-evening"]
+    },
+    "image_prompt_fragments": [
+      "humid dusk market glow",
+      "textile-inspired organic patterns",
+      "multigenerational dinner scene"
+    ]
+  }
+]

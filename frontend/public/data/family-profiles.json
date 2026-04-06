@@ -1,0 +1,15 @@
+[
+  {
+    "id": "profile-nanay",
+    "name": "Nanay",
+    "relationship_label": "Mother",
+    "heritage_pack_ids": [
+      "southeast-asian"
+    ],
+    "language_tags": [
+      "en",
+      "tl",
+      "ilo"
+    ]
+  }
+]
