@@ -29,9 +29,9 @@ services:
       target: development-stage
     command: sh -c "npm install && npm run dev"
     ports:
-      - "3100:3100"
+      - "4200:4200"
     environment:
-      PORT: 3100
+      PORT: 4200
       CHOKIDAR_USEPOLLING: "true"
     volumes:
       - ./backend:/app
@@ -39,35 +39,35 @@ services:
     networks:
       - bagelhacks_network
 
-  n8n:
-    image: n8nio/n8n:latest
-    ports:
-      - "5678:5678"
-    environment:
-      TZ: America/Toronto
-      GENERIC_TIMEZONE: America/Toronto
-      N8N_SECURE_COOKIE: false
-      N8N_HOST: localhost
-      N8N_PORT: 5678
-      N8N_PROTOCOL: http
-      WEBHOOK_URL: http://localhost:5678/
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-    depends_on:
-      - api
-    volumes:
-      - n8n_data:/home/node/.n8n
-      - ./backend/n8n:/files
-    networks:
-      - bagelhacks_network
+  # n8n:
+  #   image: n8nio/n8n:latest
+  #   ports:
+  #     - "5678:5678"
+  #   environment:
+  #     TZ: America/Toronto
+  #     GENERIC_TIMEZONE: America/Toronto
+  #     N8N_SECURE_COOKIE: false
+  #     N8N_HOST: localhost
+  #     N8N_PORT: 5678
+  #     N8N_PROTOCOL: http
+  #     WEBHOOK_URL: http://localhost:5678/
+  #     OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  #   depends_on:
+  #     - api
+  #   volumes:
+  #     - n8n_data:/home/node/.n8n
+  #     - ./backend/n8n:/files
+  #   networks:
+  #     - bagelhacks_network
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       target: development-stage
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 6384"
     ports:
-      - "5173:5173"
+      - "6384:6384"
     environment:
       # Use relative URL - all requests go through nginx proxy
       VITE_API_URL: /api/

@@ -1,33 +1,13 @@
 [
   {
     "id": "queue-001",
-    "profile_id": "profile-noura",
-    "story_id": "story-noura-friday-kitchen",
+    "profile_id": "profile-nanay",
+    "story_id": "story-nanay-friday-kitchen",
     "title": "Friday Kitchen Stories",
     "duration_seconds": 186,
     "waveform_seed": "wz-839-kh",
     "status": "queued",
     "submitted_at": "2026-04-04T09:30:00Z"
-  },
-  {
-    "id": "queue-002",
-    "profile_id": "profile-lila",
-    "story_id": null,
-    "title": "Night Market Memory",
-    "duration_seconds": 142,
-    "waveform_seed": "wf-991-sea",
-    "status": "queued",
-    "submitted_at": "2026-04-04T10:12:00Z"
-  },
-  {
-    "id": "queue-003",
-    "profile_id": "profile-lila",
-    "story_id": null,
-    "title": "Monsoon Family Dinner",
-    "duration_seconds": 205,
-    "waveform_seed": "wf-775-sea",
-    "status": "processing",
-    "submitted_at": "2026-04-04T10:20:00Z"
   },
   {
     "id": "queue-004",

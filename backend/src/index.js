@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const app = new Hono();
-const PORT = Number(process.env.PORT ?? 3100);
+const PORT = Number(process.env.PORT ?? 4200);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(__dirname, "../data");

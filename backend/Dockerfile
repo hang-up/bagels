@@ -8,6 +8,6 @@ RUN npm install
 COPY src ./src
 COPY data ./data
 
-EXPOSE 3100
+EXPOSE 4200
 
 CMD ["npm", "run", "dev"]

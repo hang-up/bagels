@@ -23,7 +23,7 @@
 ## Environment Variables (n8n)
 
 - `OPENAI_API_KEY` (required)
-- `HANA_API_BASE` (optional, default `http://localhost:3100/api`)
+- `HANA_API_BASE` (optional, default `http://localhost:4200/api`)
 - `OPENAI_TRANSCRIBE_MODEL` (optional, default `gpt-4o-mini-transcribe`)
 - `OPENAI_STRUCTURING_MODEL` (optional, default `gpt-4.1-mini`)
 

@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const payload = $json;\nconst required = [\"queue_item_id\", \"profile_id\", \"audio_url\"];\nconst missing = required.filter((key) => !payload[key]);\nif (missing.length) {\n  throw new Error(\"Missing required fields: \" + missing.join(\", \"));\n}\n\nconst normalized = {\n  ...payload,\n  api_base:\n    payload.api_base ||\n    $env.HANA_API_BASE ||\n    \"http://localhost:3100/api\",\n  transcribe_model:\n    payload.transcribe_model ||\n    $env.OPENAI_TRANSCRIBE_MODEL ||\n    \"gpt-4o-mini-transcribe\",\n  structure_model:\n    payload.structure_model ||\n    $env.OPENAI_STRUCTURING_MODEL ||\n    \"gpt-4.1-mini\",\n  generated_at: new Date().toISOString(),\n};\n\nreturn [{ json: normalized }];"
+        "jsCode": "const payload = $json;\nconst required = [\"queue_item_id\", \"profile_id\", \"audio_url\"];\nconst missing = required.filter((key) => !payload[key]);\nif (missing.length) {\n  throw new Error(\"Missing required fields: \" + missing.join(\", \"));\n}\n\nconst normalized = {\n  ...payload,\n  api_base:\n    payload.api_base ||\n    $env.HANA_API_BASE ||\n    \"http://localhost:4200/api\",\n  transcribe_model:\n    payload.transcribe_model ||\n    $env.OPENAI_TRANSCRIBE_MODEL ||\n    \"gpt-4o-mini-transcribe\",\n  structure_model:\n    payload.structure_model ||\n    $env.OPENAI_STRUCTURING_MODEL ||\n    \"gpt-4.1-mini\",\n  generated_at: new Date().toISOString(),\n};\n\nreturn [{ json: normalized }];"
       },
       "id": "code_validate_input",
       "name": "Validate Input",

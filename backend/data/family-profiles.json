@@ -1,29 +1,5 @@
 [
   {
-    "id": "profile-noura",
-    "name": "Noura",
-    "relationship_label": "Grandmother",
-    "heritage_pack_ids": [
-      "north-african"
-    ],
-    "language_tags": [
-      "en",
-      "ar"
-    ]
-  },
-  {
-    "id": "profile-lila",
-    "name": "Lila",
-    "relationship_label": "Aunt",
-    "heritage_pack_ids": [
-      "southeast-asian"
-    ],
-    "language_tags": [
-      "en",
-      "ms"
-    ]
-  },
-  {
     "id": "profile-nanay",
     "name": "Nanay",
     "relationship_label": "Mother",
