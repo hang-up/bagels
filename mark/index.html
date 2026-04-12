@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hana — The Stories of Our Loved Ones</title>
+  <meta name="description"
+    content="Record a conversation with a loved one. Hana transforms it into a beautiful, shareable digital experience in their words and their language.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <section class="hero">
+    <div class="hero-bg" aria-hidden="true">
+      <video src="hana.mp4" autoplay loop muted playsinline></video>
+    </div>
+
+    <div class="hero-content">
+      <p class="coming-soon">Coming Soon</p>
+
+      <form class="subscribe-form" id="subscribe-form" novalidate>
+        <label class="sr-only" for="email">Email address</label>
+        <input id="email" name="email" type="email" placeholder="your email" autocomplete="email" inputmode="email"
+          required aria-describedby="subscribe-note subscribe-error">
+
+        <label class="trap-field" for="company">Leave this field empty</label>
+        <input class="trap-field" id="company" name="company" type="text" tabindex="-1" autocomplete="off">
+
+        <button type="submit" id="subscribe-button">Keep Me Updated</button>
+      </form>
+
+      <p class="subscribe-note" id="subscribe-note">No spam, just updates on when Hana launches.</p>
+      <p class="subscribe-error" id="subscribe-error" role="alert" aria-live="polite"></p>
+
+      <div class="subscribe-success" id="subscribe-success" aria-live="polite">
+        <p>Thank you — we'll keep you in the story.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Built by <a href="https://groundedrob.com/" target="_blank" rel="noreferrer">Rob</a> <span
+        class="separator">&</span> <a href="https://sarkhalid.com/" target="_blank" rel="noreferrer">Sarah</a> at <a
+        href="https://devpost.com/software/hana-3g8fwk" target="_blank" rel="noreferrer">BagelHacks II</a></p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+
+</html>
