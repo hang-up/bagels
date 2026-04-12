@@ -1,0 +1,6 @@
+{
+  "name": "hana-mark",
+  "scripts": {
+    "start": "echo \"No start script specified\" && exit 0"
+  }
+}
